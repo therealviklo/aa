@@ -14,19 +14,19 @@ llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
 				std::shared_ptr<Type> t = i->getTypeC(c, s);
 				if (t->isFloat())
 				{	
-					t = commonType(t, (*s.tscope)["f64"]);
+					t = commonType(t, s.tscope["f64"]);
 					argvals.push_back(convert(*i, t, c, s));
 				}
 				else if (t->isInt() || t->isBool())
 				{
 					if (t->isSigned())
 					{
-						t = commonType(t, (*s.tscope)["i32"]);
+						t = commonType(t, s.tscope["i32"]);
 						argvals.push_back(convert(*i, t, c, s));
 					}
 					else
 					{
-						t = commonType(t, (*s.tscope)["u32"]);
+						t = commonType(t, s.tscope["u32"]);
 						argvals.push_back(convert(*i, t, c, s));
 					}
 				}

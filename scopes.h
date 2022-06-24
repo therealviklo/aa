@@ -14,9 +14,9 @@ using TScope = Scope<std::shared_ptr<Type>>;
 
 struct Scopes
 {
-	std::unique_ptr<VScope> vscope;
-	std::unique_ptr<FScope> fscope;
-	std::unique_ptr<TScope> tscope;
+	VScope vscope;
+	FScope fscope;
+	TScope tscope;
 
 	Scopes(Scopes* lowerScope = nullptr);
 };

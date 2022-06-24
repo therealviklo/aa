@@ -15,7 +15,7 @@ llvm::Value* Subscript::getRefValue(Context& c, Scopes& s) const
 			c.builder->CreateGEP(
 				expr->getTypeC(c, s)->getType(*c.c),
 				expr->getAddress(c, s),
-				{llvm::ConstantInt::get((*s.tscope)["usize"]->getType(*c.c), 0), sub->getValue(c, s)}
+				{llvm::ConstantInt::get(s.tscope["usize"]->getType(*c.c), 0), sub->getValue(c, s)}
 			);
 	throw std::runtime_error("Kan inte indexera typ");
 }

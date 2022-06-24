@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		c.builder = std::make_unique<llvm::IRBuilder<>>(*c.c);
 		c.mod = std::make_unique<llvm::Module>(out, *c.c);
 		initModule(triple, c);
-		addDefaultTypes(c, *s.tscope);
+		addDefaultTypes(c, s.tscope);
 		p.parseFile(s);
 		genModule(c, s);
 		std::error_code err;

@@ -3,7 +3,7 @@
 void IfElse::writeStatement(Context& c, Scopes& s) const
 {
 	Scopes as(&s);
-	llvm::Value* const boolVal = convert(*cond, (*s.tscope)["bool"], c, s);
+	llvm::Value* const boolVal = convert(*cond, s.tscope["bool"], c, s);
 	llvm::Function* const f = c.builder->GetInsertBlock()->getParent();
 	llvm::BasicBlock* const thenBlock = llvm::BasicBlock::Create(*c.c, "", f);
 	llvm::BasicBlock* const elseBlock = llvm::BasicBlock::Create(*c.c);

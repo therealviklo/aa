@@ -4,7 +4,7 @@ llvm::Value* Neq::getValue(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())
-		t = (*s.tscope)["uptr"];
+		t = s.tscope["uptr"];
 	llvm::Value* const l = forceConvert(*left, t, c, s);
 	llvm::Value* const r = forceConvert(*right, t, c, s);
 	if (t->isInt() || t-> isBool())
@@ -16,5 +16,5 @@ llvm::Value* Neq::getValue(Context& c, Scopes& s) const
 
 std::shared_ptr<Type> Neq::getType(Context& /*c*/, Scopes& s) const
 {
-	return (*s.tscope)["bool"];
+	return s.tscope["bool"];
 }

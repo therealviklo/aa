@@ -10,8 +10,8 @@ llvm::Value* DotOp::getRefValue(Context& c, Scopes& s) const
 				expr->getTypeC(c, s)->getType(*c.c),
 				expr->getAddress(c, s),
 				{
-					llvm::ConstantInt::get((*s.tscope)["u32"]->getType(*c.c), 0),
-					llvm::ConstantInt::get((*s.tscope)["u32"]->getType(*c.c), st->fieldnames.at(fieldname))
+					llvm::ConstantInt::get(s.tscope["u32"]->getType(*c.c), 0),
+					llvm::ConstantInt::get(s.tscope["u32"]->getType(*c.c), st->fieldnames.at(fieldname))
 				}
 			);
 		return v;

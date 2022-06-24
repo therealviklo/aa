@@ -23,39 +23,39 @@ namespace
 	std::shared_ptr<Type> getSmallestPossibleIntType(unsigned long long i, Scopes& s)
 	{
 		if (i <= 0xFFull)
-			return (*s.tscope)["u8"];
+			return s.tscope["u8"];
 		if (i <= 0xFFFFull)
-			return (*s.tscope)["u16"];
+			return s.tscope["u16"];
 		if (i <= 0xFFFFFFFFull)
-			return (*s.tscope)["u32"];
-		return (*s.tscope)["u64"];
+			return s.tscope["u32"];
+		return s.tscope["u64"];
 	}
 
 	std::shared_ptr<Type> getSmallestPossibleSignedIntType(unsigned long long i, Scopes& s)
 	{
 		if (i <= 0x7Full)
-			return (*s.tscope)["i8"];
+			return s.tscope["i8"];
 		if (i <= 0x7FFFull)
-			return (*s.tscope)["i16"];
+			return s.tscope["i16"];
 		if (i <= 0x7FFFFFFFull)
-			return (*s.tscope)["i32"];
-		return (*s.tscope)["i64"];
+			return s.tscope["i32"];
+		return s.tscope["i64"];
 	}
 }
 
 llvm::Value* Name::getRefValue(Context& /*c*/, Scopes& s) const
 {
-	if (!s.vscope->contains(name))
+	if (!s.vscope.contains(name))
 		throw std::runtime_error("Okänd variabel");
-	if (!(*s.vscope)[name].ref)
+	if (!s.vscope[name].ref)
 		throw std::runtime_error("Inte en referens");
-	return (*s.vscope)[name].var;
+	return s.vscope[name].var;
 }
 
 llvm::Value* Name::getValue(Context& c, Scopes& s) const
 {
-	if (s.vscope->contains(name))
-		return (*s.vscope)[name].getValue(c);
+	if (s.vscope.contains(name))
+		return s.vscope[name].getValue(c);
 	llvm::Type* const t = getTypeC(c, s)->getType(*c.c);
 	if (name == "true")
 		return llvm::ConstantInt::get(t, 1);
@@ -108,9 +108,9 @@ llvm::Value* Name::getValue(Context& c, Scopes& s) const
 std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 {
 	if (name == "true" || name == "false")
-		return (*s.tscope)["bool"];
+		return s.tscope["bool"];
 	if (name == "null")
-		return std::make_shared<PointerType>((*s.tscope)["void"]);
+		return std::make_shared<PointerType>(s.tscope["void"]);
 	std::smatch m;
 	std::string i;
 	if (std::regex_search(name, m, intregex) && std::regex_search(i = m[0].str(), m, intregex2))
@@ -127,7 +127,7 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 		{
 			if (std::regex_search(name, bm, bitregex))
 			{
-				return (*s.tscope)["u" + bm[0].str()];
+				return s.tscope["u" + bm[0].str()];
 			}
 			else
 			{
@@ -138,7 +138,7 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 		{
 			if (std::regex_search(name, bm, bitregex))
 			{
-				return (*s.tscope)["i" + bm[0].str()];
+				return s.tscope["i" + bm[0].str()];
 			}
 			else
 			{
@@ -147,35 +147,35 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 		}
 	}
 	if (std::regex_search(name, f16regex))
-		return (*s.tscope)["f16"];
+		return s.tscope["f16"];
 	if (std::regex_search(name, f32regex))
-		return (*s.tscope)["f32"];
+		return s.tscope["f32"];
 	if (std::regex_search(name, f64regex))
-		return (*s.tscope)["f64"];
+		return s.tscope["f64"];
 	if (std::regex_search(name, inff16regex))
-		return (*s.tscope)["f16"];
+		return s.tscope["f16"];
 	if (std::regex_search(name, inff32regex))
-		return (*s.tscope)["f32"];
+		return s.tscope["f32"];
 	if (std::regex_search(name, inff64regex))
-		return (*s.tscope)["f64"];
+		return s.tscope["f64"];
 	if (std::regex_search(name, nanf16regex))
-		return (*s.tscope)["f16"];
+		return s.tscope["f16"];
 	if (std::regex_search(name, nanf32regex))
-		return (*s.tscope)["f32"];
+		return s.tscope["f32"];
 	if (std::regex_search(name, nanf64regex))
-		return (*s.tscope)["f64"];
-	return (*s.vscope)[name].type;
+		return s.tscope["f64"];
+	return s.vscope[name].type;
 }
 
 std::shared_ptr<Type> Name::getFuncCallReturnType(Context& /*c*/, Scopes& s) const
 {
-	return (*s.fscope)[name].retType;
+	return s.fscope[name].retType;
 }
 
 std::vector<std::shared_ptr<Type>> Name::getFuncCallTypes(Context& /*c*/, Scopes& s) const
 {
 	std::vector<std::shared_ptr<Type>> argTypes;
-	for (const auto& i : (*s.fscope)[name].args)
+	for (const auto& i : s.fscope[name].args)
 	{
 		argTypes.push_back(i.type);
 	}
@@ -184,17 +184,17 @@ std::vector<std::shared_ptr<Type>> Name::getFuncCallTypes(Context& /*c*/, Scopes
 
 bool Name::isVarargs(Context& /*c*/, Scopes& s) const
 {
-	return (*s.fscope)[name].varargs;
+	return s.fscope[name].varargs;
 }
 
 llvm::FunctionCallee Name::getCallable(Context& c, Scopes& s) const
 {
-	return (*s.fscope)[name].getFunction(c);
+	return s.fscope[name].getFunction(c);
 }
 
 llvm::Value* Name::getAddress(Context& c, Scopes& s) const
 {
-	if (s.vscope->contains(name) && (*s.vscope)[name].ref)
-		return (*s.vscope)[name].var;
+	if (s.vscope.contains(name) && s.vscope[name].ref)
+		return s.vscope[name].var;
 	return Expression::getAddress(c, s);
 }

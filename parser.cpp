@@ -116,7 +116,7 @@ void Parser::parseFile(Scopes& s)
 		else
 		{
 			std::string token = lexer.getRegex(nameregex);
-			if (!s.tscope->contains(token))
+			if (!s.tscope.contains(token))
 				throw std::runtime_error("Oväntad token \"" + token + '\"');
 			std::shared_ptr<Type> type = parseType(token, s);
 			std::string name = lexer.getRegex(nameregex);
@@ -150,7 +150,7 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, Scopes& s)
 				break;
 			}
 			const std::string token = lexer.getRegex(nameregex);
-			if (!s.tscope->contains(token))
+			if (!s.tscope.contains(token))
 				throw std::runtime_error("Oväntad token \"" + token + '\"');
 			std::shared_ptr<Type> type = parseType(token, s);
 			const std::string name = lexer.getRegex(nameregex);
@@ -163,13 +163,13 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, Scopes& s)
 	}
 	if (lexer.tryRead(";"))
 	{
-		s.fscope->add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, nullptr});
+		s.fscope.add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, nullptr});
 	}
 	else
 	{
 		Scopes as(&s);
 		std::unique_ptr<Statement> body = parseStatement(as);
-		s.fscope->add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, std::move(body)});
+		s.fscope.add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, std::move(body)});
 	}
 }
 
@@ -247,7 +247,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	if (lexer.tryRead("[["))
 	{
 		std::string tname = lexer.getRegex(nameregex);
-		if (!s.tscope->contains(tname))
+		if (!s.tscope.contains(tname))
 			throw std::runtime_error("Förväntade typ");
 		std::shared_ptr<Type> type = parseType(tname, s);
 		if (!lexer.tryRead("]]"))
@@ -262,7 +262,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	if (lexer.tryRead("["))
 	{
 		std::string tname = lexer.getRegex(nameregex);
-		if (!s.tscope->contains(tname))
+		if (!s.tscope.contains(tname))
 			throw std::runtime_error("Förväntade typ");
 		std::shared_ptr<Type> type = parseType(tname, s);
 		if (!lexer.tryRead("]"))
@@ -336,7 +336,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	std::string operand = lexer.getRegex(nameregex);
 	if (operand.empty())
 		throw std::runtime_error("Förväntade namn");
-	if (s.tscope->contains(operand))
+	if (s.tscope.contains(operand))
 	{
 		std::shared_ptr<Type> type = parseType(operand, s);
 		std::string name = lexer.getRegex(nameregex);
@@ -507,7 +507,7 @@ std::unique_ptr<Statement> Parser::parseWhileStatement(Scopes& s)
 
 std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 {
-	std::shared_ptr<Type> type = (*s.tscope)[name];
+	std::shared_ptr<Type> type = s.tscope[name];
 	while (true)
 	{
 		if (lexer.tryReadName("mut"))
@@ -519,7 +519,7 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 		else if (lexer.tryRead("*"))
 		{
 			if (type->isVoid())
-				type = std::make_shared<PointerType>((*s.tscope)["u8"]);
+				type = std::make_shared<PointerType>(s.tscope["u8"]);
 			else
 				type = std::make_shared<PointerType>(type);
 		}
@@ -570,7 +570,7 @@ void Parser::parseTypeDecl(Scopes& s)
 		throw std::runtime_error("Förväntade namn");
 	if (lexer.tryRead(";"))
 	{
-		s.tscope->add(name, std::make_shared<FutureType>(*s.tscope, std::move(name)));
+		s.tscope.add(name, std::make_shared<FutureType>(s.tscope, std::move(name)));
 	}
 	else if (lexer.tryRead("="))
 	{
@@ -580,13 +580,13 @@ void Parser::parseTypeDecl(Scopes& s)
 		std::shared_ptr<Type> t = parseType(oname, s);
 		if (!lexer.tryRead(";"))
 			throw std::runtime_error("Förväntade \";\"");
-		s.tscope->add(name, t);
+		s.tscope.add(name, t);
 	}
 	else
 	{
 		if (!lexer.tryRead("{"))
 			throw std::runtime_error("Förväntade \"{\"");
-		s.tscope->add(name, std::make_shared<FutureType>(*s.tscope, name));
+		s.tscope.add(name, std::make_shared<FutureType>(s.tscope, name));
 		parseStruct(std::move(name), s);
 	}
 }
@@ -610,5 +610,5 @@ void Parser::parseStruct(std::string sname, Scopes& s)
 		if (!lexer.tryRead(";"))
 			throw std::runtime_error("Förväntade \";\"");
 	}
-	s.tscope->add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames)));
+	s.tscope.add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames)));
 }

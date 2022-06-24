@@ -12,7 +12,7 @@ void genFunction(const Function& function, Context& c, Scopes& s)
 		llvm::Function::arg_iterator ai = f->arg_begin();
 		for (const auto& i : function.args)
 		{
-			as.vscope->add(i.name, {ai++, i.type, false});
+			as.vscope.add(i.name, {ai++, i.type, false});
 		}
 		function.body->writeStatement(c, as);
 		if (!c.builder->GetInsertBlock()->getTerminator())
@@ -27,7 +27,7 @@ void initModule(const std::string& triple, Context& c)
 
 void genModule(Context& c, Scopes& s)
 {
-	s.fscope->foreach([&](const Function& f){
+	s.fscope.foreach([&](const Function& f){
 		genFunction(f, c, s);
 	});
 }
