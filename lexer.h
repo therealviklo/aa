@@ -10,11 +10,21 @@ extern const std::regex numregex;
 
 std::string utf32CharToUtf8(char32_t c);
 
+struct LineColCur
+{
+	const char* cur;
+	size_t line;
+	size_t col;
+
+	char32_t getUnicodeChar();
+	char32_t peekUnicodeChar() const;
+};
+
 class Lexer
 {
 private:
 	std::string text;
-	const char* cur;
+	LineColCur cur;
 
 	void skipWhitespace();
 public:
@@ -23,8 +33,10 @@ public:
 	char32_t getUnicodeChar();
 	char32_t peekUnicodeChar();
 
-	bool atEnd() { return *cur == '\0'; }
+	bool atEnd() { return *cur.cur == '\0'; }
 	bool tryRead(const char* str);
 	bool tryReadName(const char* str);
 	std::string getRegex(const std::regex& re);
+
+	[[noreturn]] void error(const std::string& msg);
 };

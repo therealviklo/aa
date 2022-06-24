@@ -2,7 +2,8 @@
 
 void Lexer::skipWhitespace()
 {
-	while (std::isspace(*cur)) cur++;
+	while (std::isspace(peekUnicodeChar()))
+		getUnicodeChar();
 }
 
 const std::regex nameregex(
@@ -86,30 +87,52 @@ std::string utf32CharToUtf8(char32_t c)
 		return std::string(1, static_cast<char>(c));
 }
 
+char32_t LineColCur::getUnicodeChar()
+{
+	const char32_t c = readUtf8Char(cur);
+	if (!c)
+		throw std::runtime_error("Oväntat filslut");
+	if (c == U'\n')
+	{
+		line++;
+		col = 1;
+	}
+	else
+	{
+		col++;
+	}
+	return c;
+}
+
+char32_t LineColCur::peekUnicodeChar() const
+{
+	const char* tmpcur = cur;
+	return readUtf8Char(tmpcur);
+}
+
 Lexer::Lexer(std::string text) :
 	text(std::move(text)),
-	cur(this->text.c_str())
+	cur{this->text.c_str(), 1, 1}
 {
 	tryRead("\xEF\xBB\xBF");
 }
 
 char32_t Lexer::getUnicodeChar()
 {
-	return readUtf8Char(cur);
+	return cur.getUnicodeChar();
 }
 
 char32_t Lexer::peekUnicodeChar()
 {
-	const char* tmpcur = cur;
-	return readUtf8Char(tmpcur);
+	return cur.peekUnicodeChar();
 }
 
 bool Lexer::tryRead(const char* str)
 {
-	const char* tmpcur = cur;
+	LineColCur tmpcur = cur;
 	while (*str != '\0')
 	{
-		if (*str++ != *tmpcur++)
+		if (!*tmpcur.cur || readUtf8Char(str) != tmpcur.getUnicodeChar())
 		{
 			return false;
 		}
@@ -129,15 +152,15 @@ namespace
 
 bool Lexer::tryReadName(const char* str)
 {
-	const char* tmpcur = cur;
+	LineColCur tmpcur = cur;
 	while (*str != '\0')
 	{
-		if (*str++ != *tmpcur++)
+		if (!*tmpcur.cur || readUtf8Char(str) != tmpcur.getUnicodeChar())
 		{
 			return false;
 		}
 	}
-	if (isnamechar(*tmpcur))
+	if (isnamechar(tmpcur.peekUnicodeChar()))
 		return false;
 	cur = tmpcur;
 	skipWhitespace();
@@ -147,9 +170,21 @@ bool Lexer::tryReadName(const char* str)
 std::string Lexer::getRegex(const std::regex& re)
 {
 	std::cmatch m;
-	if (!std::regex_search(cur, m, re))
+	if (!std::regex_search(cur.cur, m, re))
 		return "";
-	cur = m.suffix().first;
+	const char* mcur = m[0].first;
+	while (mcur < m[0].second)
+	{
+		readUtf8Char(mcur);
+		cur.getUnicodeChar();
+	}
 	skipWhitespace();
 	return m[0].str();
+}
+
+void Lexer::error(const std::string& msg)
+{
+	std::stringstream ss;
+	ss << msg << " (rad " << cur.line << ", kolumn " << cur.col << ")";
+	throw std::runtime_error(ss.str());
 }
