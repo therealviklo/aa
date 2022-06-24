@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+vmake -o å -L "-lLLVM-13" clang++ -O2 -std=c++20 -Wall -Wextra
