@@ -189,19 +189,27 @@ void Lexer::error(const std::string& msg)
 	throw std::runtime_error(ss.str());
 }
 
-void Lexer::expect(const char* str)
+void Lexer::expect(const std::string& str)
 {
-	if (!tryRead(str))
+	if (!tryRead(str.c_str()))
 	{
-		if (str[0] == '"' && str[1] == '\0')
+		if (str == "\"")
 			error("Förväntade \"");
 		else
-			error((std::string)"Förväntade \"" + str + "\"");
+			error("Förväntade \"" + str + "\"");
 	}
 }
 
-void Lexer::expectName(const char* str)
+void Lexer::expectName(const std::string& str)
 {
-	if (!tryReadName(str))
-		error((std::string)"Förväntade \"" + str + "\"");
+	if (!tryReadName(str.c_str()))
+		error("Förväntade \"" + str + "\"");
+}
+
+std::string Lexer::expectRegex(const std::regex& re, const std::string& name)
+{
+	const std::string str = getRegex(re);
+	if (str.empty())
+		error("Förväntade " + name);
+	return str;
 }
