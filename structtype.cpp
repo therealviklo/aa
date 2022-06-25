@@ -24,5 +24,5 @@ llvm::Type* StructType::getType(llvm::LLVMContext& c) const
 	{
 		types.push_back(i->getType(c));
 	}
-	return llvm::StructType::get(c, types);
+	return llvm::StructType::get(c, types, packed);
 }

@@ -544,13 +544,16 @@ void Parser::parseTypeDecl(Scopes& s)
 	}
 	else
 	{
+		bool packed = false;
+		if (lexer.tryReadName("packed"))
+			packed = true;
 		lexer.expect("{");
 		s.tscope.add(name, std::make_shared<FutureType>(s.tscope, name));
-		parseStruct(std::move(name), s);
+		parseStruct(std::move(name), packed, s);
 	}
 }
 
-void Parser::parseStruct(std::string sname, Scopes& s)
+void Parser::parseStruct(std::string sname, bool packed, Scopes& s)
 {
 	std::vector<std::shared_ptr<Type>> fields;
 	std::map<std::string, size_t> fieldnames;
@@ -566,5 +569,5 @@ void Parser::parseStruct(std::string sname, Scopes& s)
 		fields.push_back(t);
 		lexer.expect(";");
 	}
-	s.tscope.add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames)));
+	s.tscope.add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames), packed));
 }

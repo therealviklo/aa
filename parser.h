@@ -68,5 +68,5 @@ public:
 	std::shared_ptr<Type> parseType(const std::string& name, Scopes& s);
 	std::string parseEscapedCharacter();
 	void parseTypeDecl(Scopes& s);
-	void parseStruct(std::string sname, Scopes& s);
+	void parseStruct(std::string sname, bool packed, Scopes& s);
 };
