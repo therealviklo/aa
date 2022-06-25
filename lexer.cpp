@@ -2,8 +2,25 @@
 
 void Lexer::skipWhitespace()
 {
-	while (std::isspace(peekUnicodeChar()))
-		getUnicodeChar();
+	auto skipComment = [&]() -> bool {
+		if (tryRead("//", false))
+		{
+			while (!atEnd() && getUnicodeChar() != U'\n');
+			return true;
+		}
+		else if (tryRead("/*", false))
+		{
+			while (!atEnd() && !tryRead("*/", false))
+				getUnicodeChar();
+			return true;
+		}
+		return false;
+	};
+	do
+	{
+		while (std::isspace(peekUnicodeChar()))
+			getUnicodeChar();
+	} while (skipComment());
 }
 
 const std::regex nameregex(
@@ -127,7 +144,7 @@ char32_t Lexer::peekUnicodeChar()
 	return cur.peekUnicodeChar();
 }
 
-bool Lexer::tryRead(const char* str)
+bool Lexer::tryRead(const char* str, bool doSkipWhitespace)
 {
 	LineColCur tmpcur = cur;
 	while (*str != '\0')
@@ -138,7 +155,8 @@ bool Lexer::tryRead(const char* str)
 		}
 	}
 	cur = tmpcur;
-	skipWhitespace();
+	if (doSkipWhitespace)
+		skipWhitespace();
 	return true;
 }
 

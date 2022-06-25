@@ -34,7 +34,7 @@ public:
 	char32_t peekUnicodeChar();
 
 	bool atEnd() { return *cur.cur == '\0'; }
-	bool tryRead(const char* str);
+	bool tryRead(const char* str, bool doSkipWhitespace = true);
 	bool tryReadName(const char* str);
 	std::string getRegex(const std::regex& re);
 
