@@ -39,4 +39,6 @@ public:
 	std::string getRegex(const std::regex& re);
 
 	[[noreturn]] void error(const std::string& msg);
+	void expect(const char* str);
+	void expectName(const char* str);
 };

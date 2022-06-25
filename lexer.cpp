@@ -188,3 +188,20 @@ void Lexer::error(const std::string& msg)
 	ss << msg << " (rad " << cur.line << ", kolumn " << cur.col << ")";
 	throw std::runtime_error(ss.str());
 }
+
+void Lexer::expect(const char* str)
+{
+	if (!tryRead(str))
+	{
+		if (str[0] == '"' && str[1] == '\0')
+			error("Förväntade \"");
+		else
+			error((std::string)"Förväntade \"" + str + "\"");
+	}
+}
+
+void Lexer::expectName(const char* str)
+{
+	if (!tryReadName(str))
+		error((std::string)"Förväntade \"" + str + "\"");
+}

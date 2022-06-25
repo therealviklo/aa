@@ -92,8 +92,7 @@ void Parser::parseFile(Scopes& s)
 		}
 		else if (lexer.tryReadName("include"))
 		{
-			if (!lexer.tryRead("\""))
-				lexer.error("Förväntade \"");
+			lexer.expect("\"");
 			std::string str;
 			char32_t ch;
 			while ((ch = lexer.getUnicodeChar()) != U'"')
@@ -103,8 +102,7 @@ void Parser::parseFile(Scopes& s)
 				else
 					str += utf32CharToUtf8(ch);
 			}
-			if (!lexer.tryRead(";"))
-				lexer.error("Förväntade \";\"");
+			lexer.expect(";");
 			const fs::path newFilename = fs::canonical(fs::path(filename).parent_path() / str);
 			if (!visitedFiles->contains(newFilename))
 			{
@@ -158,8 +156,7 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, Scopes& s)
 				lexer.error("Förväntade namn");
 			args.emplace_back(FuncArg{type, name});
 		} while (lexer.tryRead(","));
-		if (!lexer.tryRead(")"))
-			lexer.error("Förväntade \")\"");
+		lexer.expect(")");
 	}
 	if (lexer.tryRead(";"))
 	{
@@ -194,8 +191,7 @@ std::unique_ptr<Statement> Parser::parseStatement(Scopes& s)
 	else
 	{
 		std::unique_ptr<Statement> expr = parseExpression(0, s);
-		if (!lexer.tryRead(";"))
-			lexer.error("Förväntade \";\"");
+		lexer.expect(";");
 		return expr;
 	}
 }
@@ -236,8 +232,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	if (lexer.tryRead("("))
 	{
 		std::unique_ptr<Expression> expr = parseExpression(0, s);
-		if (!lexer.tryRead(")"))
-			lexer.error("Förväntade \")\"");
+		lexer.expect(")");
 		return parseExpressionRight(
 			lvl,
 			std::move(expr),
@@ -250,8 +245,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		if (!s.tscope.contains(tname))
 			lexer.error("Förväntade typ");
 		std::shared_ptr<Type> type = parseType(tname, s);
-		if (!lexer.tryRead("]]"))
-			lexer.error("Förväntade \"]]\"");
+		lexer.expect("]]");
 		std::unique_ptr<Expression> expr = parseExpression(prelevel("[["), s);
 		return parseExpressionRight(
 			lvl,
@@ -265,8 +259,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		if (!s.tscope.contains(tname))
 			lexer.error("Förväntade typ");
 		std::shared_ptr<Type> type = parseType(tname, s);
-		if (!lexer.tryRead("]"))
-			lexer.error("Förväntade \"]\"");
+		lexer.expect("]");
 		std::unique_ptr<Expression> expr = parseExpression(prelevel("["), s);
 		return parseExpressionRight(
 			lvl,
@@ -318,14 +311,12 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	}
 	if (lexer.tryReadName("sizeof"))
 	{
-		if (!lexer.tryRead("("))
-			lexer.error("Förväntade \"(\"");
+		lexer.expect("(");
 		std::string name = lexer.getRegex(nameregex);
 		if (name.empty())
 			lexer.error("Förväntade typ");
 		std::shared_ptr<Type> t = parseType(name, s);
-		if (!lexer.tryRead(")"))
-			lexer.error("Förväntade \")\"");
+		lexer.expect(")");
 		return parseExpressionRight(
 			lvl,
 			std::make_unique<SizeOf>(t),
@@ -430,8 +421,7 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 	if (checkLevel(level("["), lvl) && lexer.tryRead("["))
 	{
 		std::unique_ptr<Expression> expr = parseExpression(0, s);
-		if (!lexer.tryRead("]"))
-			lexer.error("Förväntade \"]\"");
+		lexer.expect("]");
 		return parseExpressionRight(
 			lvl,
 			std::make_unique<Subscript>(
@@ -454,8 +444,7 @@ std::vector<std::unique_ptr<Expression>> Parser::parseFuncCallArgs(Scopes& s)
 		{
 			args.push_back(parseExpression(0, s));
 		} while (lexer.tryRead(","));
-		if (!lexer.tryRead(")"))
-			lexer.error("Förväntade \")\"");
+		lexer.expect(")");
 	}
 	return args;
 }
@@ -465,19 +454,16 @@ std::unique_ptr<Statement> Parser::parseReturnStatement(Scopes& s)
 	if (lexer.tryRead(";"))
 		return std::make_unique<Return>(nullptr);
 	std::unique_ptr<Expression> expr = parseExpression(0, s);
-	if (!lexer.tryRead(";"))
-		lexer.error("Förväntade \";\"");
+	lexer.expect(";");
 	return std::make_unique<Return>(std::move(expr));
 }
 
 std::unique_ptr<Statement> Parser::parseIfStatement(Scopes& s)
 {
 	Scopes as(&s);
-	if (!lexer.tryRead("("))
-		lexer.error("Förväntade \"(\"");
+	lexer.expect("(");
 	std::unique_ptr<Expression> cond = parseExpression(0, as);
-	if (!lexer.tryRead(")"))
-		lexer.error("Förväntade \")\"");
+	lexer.expect(")");
 	Scopes aas(&as);
 	std::unique_ptr<Statement> thenStmt = parseStatement(aas);
 	if (lexer.tryReadName("else"))
@@ -495,11 +481,9 @@ std::unique_ptr<Statement> Parser::parseIfStatement(Scopes& s)
 std::unique_ptr<Statement> Parser::parseWhileStatement(Scopes& s)
 {
 	Scopes as(&s);
-	if (!lexer.tryRead("("))
-		lexer.error("Förväntade \"(\"");
+	lexer.expect("(");
 	std::unique_ptr<Expression> cond = parseExpression(0, as);
-	if (!lexer.tryRead(")"))
-		lexer.error("Förväntade \")\"");
+	lexer.expect(")");
 	Scopes aas(&as);
 	std::unique_ptr<Statement> stmt = parseStatement(aas);
 	return std::make_unique<While>(std::move(cond), std::move(stmt));
@@ -528,8 +512,7 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 			const std::string numstr = lexer.getRegex(numregex);
 			if (numstr.empty())
 				lexer.error("Förväntade tal");
-			if (!lexer.tryRead("]"))
-				lexer.error("Förväntade \"]\"");
+			lexer.expect("]");
 			const unsigned long long num = std::stoull(numstr);
 			type = std::make_shared<ArrayType>(type, num);
 		}
@@ -578,14 +561,12 @@ void Parser::parseTypeDecl(Scopes& s)
 		if (oname.empty())
 			lexer.error("Förväntade namn");
 		std::shared_ptr<Type> t = parseType(oname, s);
-		if (!lexer.tryRead(";"))
-			lexer.error("Förväntade \";\"");
+		lexer.expect(";");
 		s.tscope.add(name, t);
 	}
 	else
 	{
-		if (!lexer.tryRead("{"))
-			lexer.error("Förväntade \"{\"");
+		lexer.expect("{");
 		s.tscope.add(name, std::make_shared<FutureType>(s.tscope, name));
 		parseStruct(std::move(name), s);
 	}
@@ -607,8 +588,7 @@ void Parser::parseStruct(std::string sname, Scopes& s)
 			fieldnames.emplace(name, fields.size());
 		}
 		fields.push_back(t);
-		if (!lexer.tryRead(";"))
-			lexer.error("Förväntade \";\"");
+		lexer.expect(";");
 	}
 	s.tscope.add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames)));
 }
