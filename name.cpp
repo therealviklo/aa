@@ -62,8 +62,9 @@ llvm::Value* Name::getValue(Context& c, Scopes& s) const
 	if (name == "false")
 		return llvm::ConstantInt::get(t, 0);
 	if (name == "null")
-		// return llvm::ConstantPointerNull::get(llvm::PointerType::get(llvm::IntegerType::get(*c.c, 8), 0));
 		return llvm::ConstantPointerNull::get(llvm::PointerType::get(*c.c, 0));
+	if (s.fscope.contains(name))
+		return s.fscope[name].getFunction(c);
 	std::smatch m;
 	std::string i;
 	if (std::regex_search(name, m, intregex) && std::regex_search(i = m[0].str(), m, intregex2))
@@ -111,6 +112,8 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 		return s.tscope["bool"];
 	if (name == "null")
 		return std::make_shared<PointerType>(s.tscope["void"]);
+	if (s.fscope.contains(name))
+		return s.fscope[name].getFunctionType();
 	std::smatch m;
 	std::string i;
 	if (std::regex_search(name, m, intregex) && std::regex_search(i = m[0].str(), m, intregex2))
@@ -167,29 +170,11 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 	return s.vscope[name].type;
 }
 
-std::shared_ptr<Type> Name::getFuncCallReturnType(Context& /*c*/, Scopes& s) const
-{
-	return s.fscope[name].retType;
-}
-
-std::vector<std::shared_ptr<Type>> Name::getFuncCallTypes(Context& /*c*/, Scopes& s) const
-{
-	std::vector<std::shared_ptr<Type>> argTypes;
-	for (const auto& i : s.fscope[name].args)
-	{
-		argTypes.push_back(i.type);
-	}
-	return argTypes;
-}
-
-bool Name::isVarargs(Context& /*c*/, Scopes& s) const
-{
-	return s.fscope[name].varargs;
-}
-
 llvm::FunctionCallee Name::getCallable(Context& c, Scopes& s) const
 {
-	return s.fscope[name].getFunction(c);
+	if (s.fscope.contains(name))
+		return s.fscope[name].getFunction(c);
+	return Expression::getCallable(c, s);
 }
 
 llvm::Value* Name::getAddress(Context& c, Scopes& s) const

@@ -4,6 +4,7 @@
 #include "scopes.h"
 #include "variable.h"
 #include "createalloca.h"
+#include "functiontype.h"
 
 class Expression : public Statement
 {
@@ -19,22 +20,7 @@ public:
 	virtual std::shared_ptr<Type> getType(Context& c, Scopes& s) const = 0;
 	std::shared_ptr<Type> getTypeC(Context& c, Scopes& s) const;
 
-	virtual std::shared_ptr<Type> getFuncCallReturnType(Context& /*c*/, Scopes& /*s*/) const
-	{
-		throw std::runtime_error("Inte en funktion");
-	}
-	virtual std::vector<std::shared_ptr<Type>> getFuncCallTypes(Context& /*c*/, Scopes& /*s*/) const
-	{
-		throw std::runtime_error("Inte en funktion");
-	}
-	virtual bool isVarargs(Context& /*c*/, Scopes& /*s*/) const
-	{
-		throw std::runtime_error("Inte en funktion");
-	}
-	virtual llvm::FunctionCallee getCallable(Context& /*c*/, Scopes& /*s*/) const
-	{
-		throw std::runtime_error("Inte en funktion");
-	}
+	virtual llvm::FunctionCallee getCallable(Context& c, Scopes& s) const;
 
 	void writeStatement(Context& c, Scopes& s) const override;
 

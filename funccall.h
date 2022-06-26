@@ -4,6 +4,7 @@
 #include "expression.h"
 #include "convert.h"
 #include "commontype.h"
+#include "functiontype.h"
 
 struct FuncCall : public Expression
 {

@@ -498,6 +498,29 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 			const unsigned long long num = std::stoull(numstr);
 			type = std::make_shared<ArrayType>(type, num);
 		}
+		else if (lexer.tryRead("("))
+		{
+			std::vector<std::shared_ptr<Type>> argTypes;
+			bool varargs = false;
+			if (!lexer.tryRead(")"))
+			{
+				do
+				{
+					if (lexer.tryRead("..."))
+					{
+						varargs = true;
+						break;
+					}
+					const std::string token = lexer.getRegex(nameregex);
+					if (!s.tscope.contains(token))
+						lexer.error("Oväntad token \"" + token + '\"');
+					std::shared_ptr<Type> type = parseType(token, s);
+					argTypes.emplace_back(type);
+				} while (lexer.tryRead(","));
+				lexer.expect(")");
+			}
+			type = std::make_shared<FunctionType>(type, std::move(argTypes), varargs);
+		}
 		else break;
 	}
 	return type;

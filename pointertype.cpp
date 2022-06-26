@@ -12,7 +12,6 @@ bool PointerType::isSame(std::shared_ptr<Type> t) const
 
 llvm::Type* PointerType::getType(llvm::LLVMContext& c) const
 {
-	// return containedType->getType(c)->getPointerTo();
 	return llvm::PointerType::get(c, 0);
 }
 

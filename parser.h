@@ -42,6 +42,7 @@
 #include "structtype.h"
 #include "dotop.h"
 #include "futuretype.h"
+#include "functiontype.h"
 
 namespace fs = std::filesystem;
 
