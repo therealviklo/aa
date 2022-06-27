@@ -15,6 +15,7 @@ public:
 		name(std::move(name)) {}
 	
 	bool isSame(std::shared_ptr<Type> t) const override;
-	bool isFuture() const override { return true; }
+	bool isFuture() const override { return !tscope.contains(name); }
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
+	std::shared_ptr<Type> getUnderlyingType() const override;
 };

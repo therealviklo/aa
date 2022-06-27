@@ -32,14 +32,7 @@ llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Cont
 			return c.builder->CreateFPCast(expr.getValue(c, s), newType->getType(*c.c));
 		}
 	}
-	else if (newType->isPointer())
-	{
-		if (oldType->isPointer() || oldType->isFunctionPointer())
-		{
-			return c.builder->CreatePointerCast(expr.getValue(c, s), llvm::PointerType::get(*c.c, 0));
-		}
-	}
-	else if (newType->isFunctionPointer())
+	else if (newType->isPointer() || newType->isFunctionPointer())
 	{
 		if (oldType->isPointer() || oldType->isFunctionPointer())
 		{

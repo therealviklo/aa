@@ -592,5 +592,5 @@ void Parser::parseStruct(std::string sname, bool packed, Scopes& s)
 		fields.push_back(t);
 		lexer.expect(";");
 	}
-	s.tscope.add(std::move(sname), std::make_shared<StructType>(std::move(fields), std::move(fieldnames), packed));
+	s.tscope.add(sname, std::make_shared<StructType>(std::move(fields), std::move(fieldnames), sname, packed));
 }
