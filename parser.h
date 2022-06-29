@@ -56,8 +56,8 @@ public:
 	Parser(const std::string& filename, std::shared_ptr<std::set<fs::path>> visitedFiles);
 
 	void parseFile(Scopes& s);
-	void parseTypeNamePair(TypeNamePair&& tnp, Scopes& s);
-	void parseFunctionArgs(TypeNamePair&& tnp, Scopes& s);
+	void parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s);
+	void parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s);
 	std::unique_ptr<Statement> parseStatement(Scopes& s);
 	std::unique_ptr<Statement> parseCompoundStatement(Scopes& s);
 	std::unique_ptr<Expression> parseExpression(int lvl, Scopes& s);

@@ -16,6 +16,6 @@ struct Name : public Expression
 	llvm::Value* getRefValue(Context& c, Scopes& s) const override;
 	llvm::Value* getValue(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
-	llvm::FunctionCallee getCallable(Context& c, Scopes& s) const override;
+	llvm::Value* createCall(std::vector<llvm::Value*> args, Context& c, Scopes& s) const override;
 	llvm::Value* getAddress(Context& c, Scopes& s) const override;
 };

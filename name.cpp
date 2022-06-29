@@ -170,11 +170,11 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 	return s.vscope[name].type;
 }
 
-llvm::FunctionCallee Name::getCallable(Context& c, Scopes& s) const
+llvm::Value* Name::createCall(std::vector<llvm::Value*> args, Context& c, Scopes& s) const
 {
 	if (s.fscope.contains(name))
-		return s.fscope[name].getFunction(c);
-	return Expression::getCallable(c, s);
+		return c.builder->CreateCall(s.fscope[name].getFunction(c), args);
+	return Expression::createCall(std::move(args), c, s);
 }
 
 llvm::Value* Name::getAddress(Context& c, Scopes& s) const

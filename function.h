@@ -6,6 +6,8 @@
 #include "type.h"
 #include "funcarg.h"
 #include "functiontype.h"
+#include "pointertype.h"
+#include "muttype.h"
 
 struct Function
 {
@@ -13,6 +15,8 @@ struct Function
 	std::vector<FuncArg> args;
 	bool varargs;
 	std::shared_ptr<Type> retType;
+	std::shared_ptr<Type> methodType;
+	bool mut;
 	std::unique_ptr<Statement> body;
 
 	llvm::Function* getFunction(Context& c) const;

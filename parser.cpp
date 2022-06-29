@@ -118,21 +118,32 @@ void Parser::parseFile(Scopes& s)
 				lexer.error("Oväntad token \"" + token + '\"');
 			std::shared_ptr<Type> type = parseType(token, s);
 			std::string name = lexer.expectRegex(nameregex, "namn");
-			parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), s);
+			std::shared_ptr<Type> methodType;
+			if (s.tscope.contains(name))
+			{
+				std::shared_ptr<Type> t = getRealType(s.tscope[name]);
+				if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
+				{
+					lexer.expect(".");
+					name = st->name + "$" + lexer.expectRegex(nameregex, "namn");
+					methodType = t;
+				}
+			}
+			parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), methodType, s);
 		}
 	}
 }
 
-void Parser::parseTypeNamePair(TypeNamePair&& tnp, Scopes& s)
+void Parser::parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s)
 {
 	if (lexer.tryRead("("))
 	{
-		parseFunctionArgs(std::move(tnp), s);
+		parseFunctionArgs(std::move(tnp), methodType, s);
 	}
 	else lexer.error("Inte implementerat än ;)");
 }
 
-void Parser::parseFunctionArgs(TypeNamePair&& tnp, Scopes& s)
+void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s)
 {
 	std::vector<FuncArg> args;
 	bool varargs = false;
@@ -154,15 +165,42 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, Scopes& s)
 		} while (lexer.tryRead(","));
 		lexer.expect(")");
 	}
+
+	bool mut = false;
+	if (lexer.tryReadName("mut"))
+		mut = true;
+	
 	if (lexer.tryRead(";"))
 	{
-		s.fscope.add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, nullptr});
+		s.fscope.add(
+			tnp.name.name,
+			Function{
+				tnp.name.name,
+				std::move(args),
+				varargs,
+				tnp.type,
+				methodType,
+				mut,
+				nullptr
+			}
+		);
 	}
 	else
 	{
 		Scopes as(&s);
 		std::unique_ptr<Statement> body = parseStatement(as);
-		s.fscope.add(tnp.name.name, Function{tnp.name.name, std::move(args), varargs, tnp.type, std::move(body)});
+		s.fscope.add(
+			tnp.name.name,
+			Function{
+				tnp.name.name,
+				std::move(args),
+				varargs,
+				tnp.type,
+				methodType,
+				mut,
+				std::move(body)
+			}
+		);
 	}
 }
 
@@ -318,15 +356,35 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	if (s.tscope.contains(operand))
 	{
 		std::shared_ptr<Type> type = parseType(operand, s);
-		std::string name = lexer.expectRegex(nameregex, "namn");
-		return parseExpressionRight(
-			lvl,
-			std::make_unique<TypeNamePair>(
-				type,
-				Name(std::move(name))
-			),
-			s
-		);
+		if (lexer.tryRead("."))
+		{
+			std::shared_ptr<Type> t2 = getRealType(type);
+			if (const StructType* const st = dynamic_cast<const StructType*>(t2.get()))
+			{
+				const std::string fname = lexer.expectRegex(nameregex, "funktionsnamn");
+				return parseExpressionRight(
+					lvl,
+					std::make_unique<Name>(st->name + "$" + fname),
+					s
+				);
+			}
+			else
+			{
+				lexer.error("Förväntade att typen är en struct");
+			}
+		}
+		else
+		{
+			std::string name = lexer.expectRegex(nameregex, "namn");
+			return parseExpressionRight(
+				lvl,
+				std::make_unique<TypeNamePair>(
+					type,
+					Name(std::move(name))
+				),
+				s
+			);
+		}
 	}
 	else
 	{

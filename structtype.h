@@ -18,6 +18,7 @@ public:
 		packed(packed) {}
 
 	bool isSame(std::shared_ptr<Type> t) const override;
+	bool isStruct() const override { return true; }
 
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
 };
