@@ -18,4 +18,6 @@ public:
 	llvm::Value* getValue(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
 	llvm::Value* getAddress(Context& c, Scopes& s) const override;
+
+	void construct(llvm::Value* mem, Context& c, Scopes& s) const;
 };

@@ -6,6 +6,35 @@ llvm::Value* CreateStruct::getRefValue(Context& c, Scopes& s) const
 	if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
 	{
 		llvm::Value* const mem = createAlloca(st->getType(*c.c), c);
+		construct(mem, c, s);
+		return mem;
+	}
+	throw std::runtime_error("Inte en struct");
+}
+
+llvm::Value* CreateStruct::getValue(Context& c, Scopes& s) const
+{
+	return c.builder->CreateLoad(
+		getTypeC(c, s)->getType(*c.c),
+		getRefValue(c, s)
+	);
+}
+
+std::shared_ptr<Type> CreateStruct::getType(Context& /*c*/, Scopes& /*s*/) const
+{
+	return type;
+}
+
+llvm::Value* CreateStruct::getAddress(Context& c, Scopes& s) const
+{
+	return getRefValue(c, s);
+}
+
+void CreateStruct::construct(llvm::Value* mem, Context& c, Scopes& s) const
+{
+	std::shared_ptr<Type> t = getRealType(type);
+	if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
+	{
 		if (s.fscope.contains(st->name))
 		{
 			const Function& f = s.fscope[st->name];
@@ -28,25 +57,9 @@ llvm::Value* CreateStruct::getRefValue(Context& c, Scopes& s) const
 				Assign(std::make_shared<StructMemByNumber>(mem, t, i), args[i]).getValue(c, s);
 			}
 		}
-		return mem;
 	}
-	throw std::runtime_error("Inte en struct");
-}
-
-llvm::Value* CreateStruct::getValue(Context& c, Scopes& s) const
-{
-	return c.builder->CreateLoad(
-		getTypeC(c, s)->getType(*c.c),
-		getRefValue(c, s)
-	);
-}
-
-std::shared_ptr<Type> CreateStruct::getType(Context& /*c*/, Scopes& /*s*/) const
-{
-	return type;
-}
-
-llvm::Value* CreateStruct::getAddress(Context& c, Scopes& s) const
-{
-	return getRefValue(c, s);
+	else
+	{
+		throw std::runtime_error("Inte en struct");
+	}
 }
