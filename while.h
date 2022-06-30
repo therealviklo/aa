@@ -5,10 +5,10 @@
 
 struct While : public Statement
 {
-	std::unique_ptr<Expression> cond;
-	std::unique_ptr<Statement> stmt;
+	std::shared_ptr<Expression> cond;
+	std::shared_ptr<Statement> stmt;
 
-	While(std::unique_ptr<Expression> cond, std::unique_ptr<Statement> stmt) :
+	While(std::shared_ptr<Expression> cond, std::shared_ptr<Statement> stmt) :
 		cond(std::move(cond)),
 		stmt(std::move(stmt)) {}
 

@@ -6,10 +6,10 @@
 
 struct Eq : public Expression
 {
-	std::unique_ptr<Expression> left;
-	std::unique_ptr<Expression> right;
+	std::shared_ptr<Expression> left;
+	std::shared_ptr<Expression> right;
 
-	Eq(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) :
+	Eq(std::shared_ptr<Expression> left, std::shared_ptr<Expression> right) :
 		left(std::move(left)),
 		right(std::move(right)) {}
 

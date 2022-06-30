@@ -4,10 +4,10 @@
 class Subscript : public Expression
 {
 private:
-	std::unique_ptr<Expression> expr;
-	std::unique_ptr<Expression> sub;
+	std::shared_ptr<Expression> expr;
+	std::shared_ptr<Expression> sub;
 public:
-	Subscript(std::unique_ptr<Expression> expr, std::unique_ptr<Expression> sub) :
+	Subscript(std::shared_ptr<Expression> expr, std::shared_ptr<Expression> sub) :
 		expr(std::move(expr)),
 		sub(std::move(sub)) {}
 

@@ -8,10 +8,10 @@
 
 struct FuncCall : public Expression
 {
-	std::unique_ptr<Expression> name;
-	std::vector<std::unique_ptr<Expression>> args;
+	std::shared_ptr<Expression> name;
+	std::vector<std::shared_ptr<Expression>> args;
 
-	FuncCall(std::unique_ptr<Expression> name, std::vector<std::unique_ptr<Expression>> args) :
+	FuncCall(std::shared_ptr<Expression> name, std::vector<std::shared_ptr<Expression>> args) :
 		name(std::move(name)),
 		args(std::move(args)) {}
 

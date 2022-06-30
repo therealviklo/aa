@@ -5,9 +5,9 @@
 
 struct Neg : public Expression
 {
-	std::unique_ptr<Expression> expr;
+	std::shared_ptr<Expression> expr;
 
-	Neg(std::unique_ptr<Expression> expr) :
+	Neg(std::shared_ptr<Expression> expr) :
 		expr(std::move(expr)) {}
 
 	llvm::Value* getValue(Context& c, Scopes& s) const override;

@@ -4,11 +4,11 @@ llvm::Value* TypeNamePair::getRefValue(Context& c, Scopes& s) const
 {
 	if (!s.vscope.scopeContains(name.name))
 	{
-		llvm::AllocaInst* const var = createAlloca(type->getType(*c.c), c);
+		llvm::Value* const var = createAlloca(type->getType(*c.c), c);
 		s.vscope.add(name.name, {var, type, true});
 		return var;
 	}
-	return s.vscope[name.name].getValue(c);
+	return s.vscope[name.name].var;
 }
 
 llvm::Value* TypeNamePair::getValue(Context& c, Scopes& s) const
@@ -27,5 +27,5 @@ std::shared_ptr<Type> TypeNamePair::getType(Context& /*c*/, Scopes& /*s*/) const
 
 llvm::Value* TypeNamePair::getAddress(Context& c, Scopes& s) const
 {
-	return getValue(c, s);
+	return getRefValue(c, s);
 }

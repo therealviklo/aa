@@ -111,6 +111,25 @@ void Parser::parseFile(Scopes& s)
 				newp.parseFile(s);
 			}
 		}
+		else if (lexer.tryReadName("new"))
+		{
+			const std::string tname = lexer.expectRegex(nameregex, "typnamn");
+			std::shared_ptr<Type> t = getRealType(s.tscope[tname]);
+			if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
+			{
+				lexer.expect("(");
+				parseFunctionArgs(
+					TypeNamePair(std::make_shared<VoidType>(), Name(st->name)),
+					t,
+					true,
+					s
+				);
+			}
+			else
+			{
+				lexer.error("Förväntade structtyp");
+			}
+		}
 		else
 		{
 			std::string token = lexer.getRegex(nameregex);
@@ -124,26 +143,28 @@ void Parser::parseFile(Scopes& s)
 				std::shared_ptr<Type> t = getRealType(s.tscope[name]);
 				if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
 				{
-					lexer.expect(".");
-					name = st->name + "$" + lexer.expectRegex(nameregex, "namn");
-					methodType = t;
+					if (lexer.tryRead("."))
+					{
+						name = st->name + "$" + lexer.expectRegex(nameregex, "namn");
+						methodType = t;
+					}
 				}
 			}
-			parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), methodType, s);
+			parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), methodType, false, s);
 		}
 	}
 }
 
-void Parser::parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s)
+void Parser::parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, bool mut, Scopes& s)
 {
 	if (lexer.tryRead("("))
 	{
-		parseFunctionArgs(std::move(tnp), methodType, s);
+		parseFunctionArgs(std::move(tnp), methodType, mut, s);
 	}
 	else lexer.error("Inte implementerat än ;)");
 }
 
-void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s)
+void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, bool mut, Scopes& s)
 {
 	std::vector<FuncArg> args;
 	bool varargs = false;
@@ -166,7 +187,6 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodT
 		lexer.expect(")");
 	}
 
-	bool mut = false;
 	if (lexer.tryReadName("mut"))
 		mut = true;
 	
@@ -188,7 +208,7 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodT
 	else
 	{
 		Scopes as(&s);
-		std::unique_ptr<Statement> body = parseStatement(as);
+		std::shared_ptr<Statement> body = parseStatement(as);
 		s.fscope.add(
 			tnp.name.name,
 			Function{
@@ -204,7 +224,7 @@ void Parser::parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodT
 	}
 }
 
-std::unique_ptr<Statement> Parser::parseStatement(Scopes& s)
+std::shared_ptr<Statement> Parser::parseStatement(Scopes& s)
 {
 	if (lexer.tryRead("{"))
 	{
@@ -224,30 +244,30 @@ std::unique_ptr<Statement> Parser::parseStatement(Scopes& s)
 	}
 	else
 	{
-		std::unique_ptr<Statement> expr = parseExpression(0, s);
+		std::shared_ptr<Statement> expr = parseExpression(0, s);
 		lexer.expect(";");
 		return expr;
 	}
 }
 
-std::unique_ptr<Statement> Parser::parseCompoundStatement(Scopes& s)
+std::shared_ptr<Statement> Parser::parseCompoundStatement(Scopes& s)
 {
-	std::vector<std::unique_ptr<Statement>> stmts;
+	std::vector<std::shared_ptr<Statement>> stmts;
 	while (!lexer.tryRead("}"))
 	{
 		stmts.push_back(parseStatement(s));
 	}
-	return std::make_unique<Block>(std::move(stmts));
+	return std::make_shared<Block>(std::move(stmts));
 }
 
-std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
+std::shared_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 {
 #define mapPreUnOp(str, Op) if (lexer.tryRead(str)) \
 	{ \
-		std::unique_ptr<Expression> expr = parseExpression(prelevel(str), s); \
+		std::shared_ptr<Expression> expr = parseExpression(prelevel(str), s); \
 		return parseExpressionRight( \
 			lvl, \
-			std::make_unique<Op>(std::move(expr)), \
+			std::make_shared<Op>(std::move(expr)), \
 			s \
 		); \
 	}
@@ -256,7 +276,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	mapPreUnOp("!", Not);
 	if (lexer.tryRead("+"))
 	{
-		std::unique_ptr<Expression> expr = parseExpression(prelevel("+"), s);
+		std::shared_ptr<Expression> expr = parseExpression(prelevel("+"), s);
 		return parseExpressionRight(
 			lvl,
 			std::move(expr),
@@ -265,7 +285,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	}
 	if (lexer.tryRead("("))
 	{
-		std::unique_ptr<Expression> expr = parseExpression(0, s);
+		std::shared_ptr<Expression> expr = parseExpression(0, s);
 		lexer.expect(")");
 		return parseExpressionRight(
 			lvl,
@@ -278,10 +298,10 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		std::string tname = lexer.expectRegex(nameregex, "typnamn");
 		std::shared_ptr<Type> type = parseType(tname, s);
 		lexer.expect("]]");
-		std::unique_ptr<Expression> expr = parseExpression(prelevel("[["), s);
+		std::shared_ptr<Expression> expr = parseExpression(prelevel("[["), s);
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<BitCast>(std::move(expr), type),
+			std::make_shared<BitCast>(std::move(expr), type),
 			s
 		);
 	}
@@ -290,10 +310,10 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		std::string tname = lexer.expectRegex(nameregex, "typnamn");
 		std::shared_ptr<Type> type = parseType(tname, s);
 		lexer.expect("]");
-		std::unique_ptr<Expression> expr = parseExpression(prelevel("["), s);
+		std::shared_ptr<Expression> expr = parseExpression(prelevel("["), s);
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<Convert>(std::move(expr), type),
+			std::make_shared<Convert>(std::move(expr), type),
 			s
 		);
 	}
@@ -310,7 +330,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		}
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<StringLit>(
+			std::make_shared<StringLit>(
 				std::move(str)
 			),
 			s
@@ -333,7 +353,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		ss << static_cast<std::uint32_t>(str[0]) << "u8";
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<Name>(
+			std::make_shared<Name>(
 				ss.str()
 			),
 			s
@@ -347,7 +367,19 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 		lexer.expect(")");
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<SizeOf>(t),
+			std::make_shared<SizeOf>(t),
+			s
+		);
+	}
+	if (lexer.tryReadName("new"))
+	{
+		const std::string tname = lexer.expectRegex(nameregex, "typnamn");
+		std::shared_ptr<Type> type = s.tscope[tname];
+		lexer.expect("(");
+		auto args = parseFuncCallArgs(s);
+		return parseExpressionRight(
+			lvl,
+			std::make_shared<CreateStruct>(type, args),
 			s
 		);
 	}
@@ -364,7 +396,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 				const std::string fname = lexer.expectRegex(nameregex, "funktionsnamn");
 				return parseExpressionRight(
 					lvl,
-					std::make_unique<Name>(st->name + "$" + fname),
+					std::make_shared<Name>(st->name + "$" + fname),
 					s
 				);
 			}
@@ -378,7 +410,7 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 			std::string name = lexer.expectRegex(nameregex, "namn");
 			return parseExpressionRight(
 				lvl,
-				std::make_unique<TypeNamePair>(
+				std::make_shared<TypeNamePair>(
 					type,
 					Name(std::move(name))
 				),
@@ -388,17 +420,17 @@ std::unique_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 	}
 	else
 	{
-		return parseExpressionRight(lvl, std::make_unique<Name>(std::move(operand)), s);
+		return parseExpressionRight(lvl, std::make_shared<Name>(std::move(operand)), s);
 	}
 }
 
-std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_ptr<Expression> left, Scopes& s)
+std::shared_ptr<Expression> Parser::parseExpressionRight(int lvl, std::shared_ptr<Expression> left, Scopes& s)
 {
 #define mapBinOp(str, Op) if (checkLevel(level(str), lvl) && lexer.tryRead(str)) \
 		{ \
 			return parseExpressionRight( \
 				lvl, \
-				std::make_unique<Op>( \
+				std::make_shared<Op>( \
 					std::move(left), \
 					parseExpression( \
 						level(str), \
@@ -412,7 +444,7 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 		{ \
 			return parseExpressionRight( \
 				lvl, \
-				std::make_unique<Op>( \
+				std::make_shared<Op>( \
 					std::move(left) \
 				), \
 				s \
@@ -440,7 +472,7 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 		std::string fieldname = lexer.expectRegex(nameregex, "namn");
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<DotOp>(
+			std::make_shared<DotOp>(
 				std::move(left),
 				std::move(fieldname)
 			),
@@ -453,7 +485,7 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 		auto args = parseFuncCallArgs(s);
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<FuncCall>(
+			std::make_shared<FuncCall>(
 				std::move(left),
 				std::move(args)
 			),
@@ -462,11 +494,11 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 	}
 	if (checkLevel(level("["), lvl) && lexer.tryRead("["))
 	{
-		std::unique_ptr<Expression> expr = parseExpression(0, s);
+		std::shared_ptr<Expression> expr = parseExpression(0, s);
 		lexer.expect("]");
 		return parseExpressionRight(
 			lvl,
-			std::make_unique<Subscript>(
+			std::make_shared<Subscript>(
 				std::move(left),
 				std::move(expr)
 			),
@@ -477,9 +509,9 @@ std::unique_ptr<Expression> Parser::parseExpressionRight(int lvl, std::unique_pt
 	return left;
 }
 
-std::vector<std::unique_ptr<Expression>> Parser::parseFuncCallArgs(Scopes& s)
+std::vector<std::shared_ptr<Expression>> Parser::parseFuncCallArgs(Scopes& s)
 {
-	std::vector<std::unique_ptr<Expression>> args;
+	std::vector<std::shared_ptr<Expression>> args;
 	if (!lexer.tryRead(")"))
 	{
 		do
@@ -491,44 +523,44 @@ std::vector<std::unique_ptr<Expression>> Parser::parseFuncCallArgs(Scopes& s)
 	return args;
 }
 
-std::unique_ptr<Statement> Parser::parseReturnStatement(Scopes& s)
+std::shared_ptr<Statement> Parser::parseReturnStatement(Scopes& s)
 {
 	if (lexer.tryRead(";"))
-		return std::make_unique<Return>(nullptr);
-	std::unique_ptr<Expression> expr = parseExpression(0, s);
+		return std::make_shared<Return>(nullptr);
+	std::shared_ptr<Expression> expr = parseExpression(0, s);
 	lexer.expect(";");
-	return std::make_unique<Return>(std::move(expr));
+	return std::make_shared<Return>(std::move(expr));
 }
 
-std::unique_ptr<Statement> Parser::parseIfStatement(Scopes& s)
+std::shared_ptr<Statement> Parser::parseIfStatement(Scopes& s)
 {
 	Scopes as(&s);
 	lexer.expect("(");
-	std::unique_ptr<Expression> cond = parseExpression(0, as);
+	std::shared_ptr<Expression> cond = parseExpression(0, as);
 	lexer.expect(")");
 	Scopes aas(&as);
-	std::unique_ptr<Statement> thenStmt = parseStatement(aas);
+	std::shared_ptr<Statement> thenStmt = parseStatement(aas);
 	if (lexer.tryReadName("else"))
 	{
 		Scopes aas2(&as);
-		std::unique_ptr<Statement> elseStmt = parseStatement(aas2);
-		return std::make_unique<IfElse>(std::move(cond), std::move(thenStmt), std::move(elseStmt));
+		std::shared_ptr<Statement> elseStmt = parseStatement(aas2);
+		return std::make_shared<IfElse>(std::move(cond), std::move(thenStmt), std::move(elseStmt));
 	}
 	else
 	{
-		return std::make_unique<If>(std::move(cond), std::move(thenStmt));
+		return std::make_shared<If>(std::move(cond), std::move(thenStmt));
 	}
 }
 
-std::unique_ptr<Statement> Parser::parseWhileStatement(Scopes& s)
+std::shared_ptr<Statement> Parser::parseWhileStatement(Scopes& s)
 {
 	Scopes as(&s);
 	lexer.expect("(");
-	std::unique_ptr<Expression> cond = parseExpression(0, as);
+	std::shared_ptr<Expression> cond = parseExpression(0, as);
 	lexer.expect(")");
 	Scopes aas(&as);
-	std::unique_ptr<Statement> stmt = parseStatement(aas);
-	return std::make_unique<While>(std::move(cond), std::move(stmt));
+	std::shared_ptr<Statement> stmt = parseStatement(aas);
+	return std::make_shared<While>(std::move(cond), std::move(stmt));
 }
 
 std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)

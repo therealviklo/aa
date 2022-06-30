@@ -6,10 +6,10 @@
 
 struct Gt : public Expression
 {
-	std::unique_ptr<Expression> left;
-	std::unique_ptr<Expression> right;
+	std::shared_ptr<Expression> left;
+	std::shared_ptr<Expression> right;
 
-	Gt(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) :
+	Gt(std::shared_ptr<Expression> left, std::shared_ptr<Expression> right) :
 		left(std::move(left)),
 		right(std::move(right)) {}
 

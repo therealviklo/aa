@@ -8,10 +8,10 @@ llvm::Value* forceConvert(const Expression& expr, std::shared_ptr<Type> newType,
 class Convert : public Expression
 {
 private:
-	std::unique_ptr<Expression> expr;
+	std::shared_ptr<Expression> expr;
 	std::shared_ptr<Type> newType;
 public:
-	Convert(std::unique_ptr<Expression> expr, std::shared_ptr<Type> newType) :
+	Convert(std::shared_ptr<Expression> expr, std::shared_ptr<Type> newType) :
 		expr(std::move(expr)),
 		newType(newType) {}
 

@@ -5,9 +5,9 @@
 class AddrOf : public Expression
 {
 private:
-	std::unique_ptr<Expression> expr;
+	std::shared_ptr<Expression> expr;
 public:
-	AddrOf(std::unique_ptr<Expression> expr) :
+	AddrOf(std::shared_ptr<Expression> expr) :
 		expr(std::move(expr)) {}
 
 	llvm::Value* getValue(Context& c, Scopes& s) const override;

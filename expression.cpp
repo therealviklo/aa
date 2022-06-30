@@ -45,7 +45,7 @@ bool Expression::isVarargs(Context& c, Scopes& s) const
 
 llvm::Value* Expression::getAddress(Context& c, Scopes& s) const
 {
-	llvm::AllocaInst* const var = createAlloca(getTypeC(c, s)->getType(*c.c), c);
+	llvm::Value* const var = createAlloca(getTypeC(c, s)->getType(*c.c), c);
 	c.builder->CreateStore(getValue(c, s), var);
 	return var;
 }

@@ -43,6 +43,8 @@
 #include "dotop.h"
 #include "futuretype.h"
 #include "functiontype.h"
+#include "createstruct.h"
+#include "voidtype.h"
 
 namespace fs = std::filesystem;
 
@@ -56,16 +58,16 @@ public:
 	Parser(const std::string& filename, std::shared_ptr<std::set<fs::path>> visitedFiles);
 
 	void parseFile(Scopes& s);
-	void parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s);
-	void parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, Scopes& s);
-	std::unique_ptr<Statement> parseStatement(Scopes& s);
-	std::unique_ptr<Statement> parseCompoundStatement(Scopes& s);
-	std::unique_ptr<Expression> parseExpression(int lvl, Scopes& s);
-	std::unique_ptr<Expression> parseExpressionRight(int lvl, std::unique_ptr<Expression> left, Scopes& s);
-	std::vector<std::unique_ptr<Expression>> parseFuncCallArgs(Scopes& s);
-	std::unique_ptr<Statement> parseReturnStatement(Scopes& s);
-	std::unique_ptr<Statement> parseIfStatement(Scopes& s);
-	std::unique_ptr<Statement> parseWhileStatement(Scopes& s);
+	void parseTypeNamePair(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, bool mut, Scopes& s);
+	void parseFunctionArgs(TypeNamePair&& tnp, std::shared_ptr<Type> methodType, bool mut, Scopes& s);
+	std::shared_ptr<Statement> parseStatement(Scopes& s);
+	std::shared_ptr<Statement> parseCompoundStatement(Scopes& s);
+	std::shared_ptr<Expression> parseExpression(int lvl, Scopes& s);
+	std::shared_ptr<Expression> parseExpressionRight(int lvl, std::shared_ptr<Expression> left, Scopes& s);
+	std::vector<std::shared_ptr<Expression>> parseFuncCallArgs(Scopes& s);
+	std::shared_ptr<Statement> parseReturnStatement(Scopes& s);
+	std::shared_ptr<Statement> parseIfStatement(Scopes& s);
+	std::shared_ptr<Statement> parseWhileStatement(Scopes& s);
 	std::shared_ptr<Type> parseType(const std::string& name, Scopes& s);
 	std::string parseEscapedCharacter();
 	void parseTypeDecl(Scopes& s);

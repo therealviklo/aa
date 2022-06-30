@@ -17,7 +17,7 @@ struct Function
 	std::shared_ptr<Type> retType;
 	std::shared_ptr<Type> methodType;
 	bool mut;
-	std::unique_ptr<Statement> body;
+	std::shared_ptr<Statement> body;
 
 	llvm::Function* getFunction(Context& c) const;
 	std::shared_ptr<FunctionType> getFunctionType() const;

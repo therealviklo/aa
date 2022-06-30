@@ -7,9 +7,9 @@
 class Block : public Statement
 {
 private:
-	std::vector<std::unique_ptr<Statement>> stmts;
+	std::vector<std::shared_ptr<Statement>> stmts;
 public:
-	Block(std::vector<std::unique_ptr<Statement>> stmts) :
+	Block(std::vector<std::shared_ptr<Statement>> stmts) :
 		stmts(std::move(stmts)) {}
 
 	void writeStatement(Context& c, Scopes& s) const override;

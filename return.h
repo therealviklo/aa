@@ -6,9 +6,9 @@
 
 struct Return : public Statement
 {
-	std::unique_ptr<Expression> val;
+	std::shared_ptr<Expression> val;
 
-	Return(std::unique_ptr<Expression> val) :
+	Return(std::shared_ptr<Expression> val) :
 		val(std::move(val)) {}
 	
 	void writeStatement(Context& c, Scopes& s) const override;

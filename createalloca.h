@@ -2,4 +2,4 @@
 #include "llvm.h"
 #include "context.h"
 
-llvm::AllocaInst* createAlloca(llvm::Type* type, Context& c);
+llvm::Value* createAlloca(llvm::Type* type, Context& c);

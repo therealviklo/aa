@@ -6,10 +6,10 @@
 class DotOp : public Expression
 {
 private:
-	std::unique_ptr<Expression> expr;
+	std::shared_ptr<Expression> expr;
 	std::string fieldname;
 public:
-	DotOp(std::unique_ptr<Expression> expr, std::string fieldname) :
+	DotOp(std::shared_ptr<Expression> expr, std::string fieldname) :
 		expr(std::move(expr)),
 		fieldname(std::move(fieldname)) {}
 

@@ -5,10 +5,10 @@
 
 struct If : public Statement
 {
-	std::unique_ptr<Expression> cond;
-	std::unique_ptr<Statement> thenStmt;
+	std::shared_ptr<Expression> cond;
+	std::shared_ptr<Statement> thenStmt;
 
-	If(std::unique_ptr<Expression> cond, std::unique_ptr<Statement> thenStmt) :
+	If(std::shared_ptr<Expression> cond, std::shared_ptr<Statement> thenStmt) :
 		cond(std::move(cond)),
 		thenStmt(std::move(thenStmt)) {}
 
