@@ -45,6 +45,7 @@
 #include "functiontype.h"
 #include "createstruct.h"
 #include "voidtype.h"
+#include "inplaceconstruct.h"
 
 namespace fs = std::filesystem;
 

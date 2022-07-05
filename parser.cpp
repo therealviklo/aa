@@ -469,15 +469,30 @@ std::shared_ptr<Expression> Parser::parseExpressionRight(int lvl, std::shared_pt
 
 	if (checkLevel(level("."), lvl) && lexer.tryRead("."))
 	{
-		std::string fieldname = lexer.expectRegex(nameregex, "namn");
-		return parseExpressionRight(
-			lvl,
-			std::make_shared<DotOp>(
-				std::move(left),
-				std::move(fieldname)
-			),
-			s
-		);
+		if (lexer.tryReadName("new"))
+		{
+			const std::string tname = lexer.expectRegex(nameregex, "typnamn");
+			std::shared_ptr<Type> type = s.tscope[tname];
+			lexer.expect("(");
+			auto args = parseFuncCallArgs(s);
+			return parseExpressionRight(
+				lvl,
+				std::make_shared<InPlaceConstruct>(std::move(left), type, std::move(args)),
+				s
+			);
+		}
+		else
+		{
+			std::string fieldname = lexer.expectRegex(nameregex, "namn");
+			return parseExpressionRight(
+				lvl,
+				std::make_shared<DotOp>(
+					std::move(left),
+					std::move(fieldname)
+				),
+				s
+			);
+		}
 	}
 	
 	if (checkLevel(level("("), lvl) && lexer.tryRead("("))
