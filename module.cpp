@@ -10,6 +10,15 @@ void genFunction(const Function& function, Context& c, Scopes& s)
 		c.builder->SetInsertPoint(entryBlock);
 		Scopes as(&s);
 		llvm::Function::arg_iterator ai = f->arg_begin();
+		if (function.retType->isPtrReturn())
+			as.vscope.add(
+				"ret",
+				{
+					ai++,
+					std::make_shared<MutType>(function.retType),
+					true
+				}
+			);
 		if (function.methodType)
 			as.vscope.add(
 				"this",

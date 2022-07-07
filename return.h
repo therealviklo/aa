@@ -3,6 +3,8 @@
 #include "expression.h"
 #include "statement.h"
 #include "convert.h"
+#include "assign.h"
+#include "typenamepair.h"
 
 struct Return : public Statement
 {

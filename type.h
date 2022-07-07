@@ -32,6 +32,7 @@ struct Type
 	virtual bool isFuture() const { return false; }
 	virtual bool isFunctionPointer() const { return false; }
 	virtual bool isStruct() const { return false; }
+	bool isPtrReturn() const { return isArr() || isStruct(); }
 	virtual unsigned getRank() const { return 0u; }
 	virtual std::shared_ptr<Type> getTypePointedTo() const
 	{

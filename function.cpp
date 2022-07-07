@@ -5,6 +5,8 @@ llvm::Function* Function::getFunction(Context& c) const
 	if (llvm::Function* const f = c.mod->getFunction(name))
 		return f;
 	std::vector<llvm::Type*> argTypes;
+	if (retType->isPtrReturn())
+		argTypes.push_back(llvm::PointerType::get(*c.c, 0));
 	if (methodType)
 	{
 		if (mut)
@@ -24,7 +26,14 @@ llvm::Function* Function::getFunction(Context& c) const
 	{
 		argTypes.push_back(i.type->getType(*c.c));
 	}
-	llvm::FunctionType* const ftype = llvm::FunctionType::get(retType->getType(*c.c), argTypes, varargs);
+	llvm::FunctionType* const ftype =
+		llvm::FunctionType::get(
+			retType->isPtrReturn()
+			? llvm::Type::getVoidTy(*c.c)
+			: retType->getType(*c.c),
+			argTypes,
+			varargs
+		);
 	return llvm::Function::Create(ftype, llvm::Function::ExternalLinkage, name, *c.mod);
 }
 

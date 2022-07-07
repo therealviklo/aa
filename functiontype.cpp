@@ -22,11 +22,20 @@ bool FunctionType::isSame(std::shared_ptr<Type> t) const
 llvm::FunctionType* FunctionType::getFunctionType(llvm::LLVMContext& c) const
 {
 	std::vector<llvm::Type*> args;
+	if (retType->isPtrReturn())
+		args.push_back(llvm::PointerType::get(c, 0));
 	for (const auto& i : argTypes)
 	{
 		args.push_back(i->getType(c));
 	}
-	return llvm::FunctionType::get(retType->getType(c), args, varargs);
+	return 
+		llvm::FunctionType::get(
+			retType->isPtrReturn()
+			? llvm::Type::getVoidTy(c)
+			: retType->getType(c),
+			args,
+			varargs
+		);
 }
 
 llvm::Type* FunctionType::getType(llvm::LLVMContext& c) const
