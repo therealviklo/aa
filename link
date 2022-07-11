@@ -1,0 +1,1 @@
+clang -mllvm -opaque-pointers -o test test.ll

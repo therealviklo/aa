@@ -16,6 +16,8 @@ public:
 		throw std::runtime_error("Inte en referens");
 	}
 	virtual llvm::Value* getValue(Context& c, Scopes& s) const = 0;
+	virtual void getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const;
+	virtual bool canPtrReturn() const { return false; }
 
 	virtual std::shared_ptr<Type> getType(Context& c, Scopes& s) const = 0;
 	std::shared_ptr<Type> getTypeC(Context& c, Scopes& s) const;

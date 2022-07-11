@@ -5,6 +5,11 @@ void Expression::writeStatement(Context& c, Scopes& s) const
 	getValue(c, s);
 }
 
+void Expression::getValuePtrReturn(llvm::Value* /*mem*/, Context& /*c*/, Scopes& /*s*/) const
+{
+	throw std::runtime_error("Inte pekarreturnerande uttryck");
+}
+
 std::shared_ptr<Type> Expression::getTypeC(Context& c, Scopes& s) const
 {
 	if (typeCache)

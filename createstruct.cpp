@@ -20,6 +20,11 @@ llvm::Value* CreateStruct::getValue(Context& c, Scopes& s) const
 	);
 }
 
+void CreateStruct::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const
+{
+	construct(mem, c, s);
+}
+
 std::shared_ptr<Type> CreateStruct::getType(Context& /*c*/, Scopes& /*s*/) const
 {
 	return type;

@@ -1,6 +1,6 @@
 #include "funccall.h"
 
-llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
+llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getRealType(name->getTypeC(c, s));
 	if (const FunctionType* const ft = dynamic_cast<const FunctionType*>(t.get()))
@@ -8,9 +8,12 @@ llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
 		std::vector<llvm::Value*> argvals;
 		std::vector<std::shared_ptr<Type>> argTypes = name->getCallArgs(c, s);
 		std::vector<std::shared_ptr<Type>>::const_iterator ati = argTypes.begin();
-		llvm::Value* ptrRetMem = nullptr;
 		if (ft->retType->isPtrReturn())
-			argvals.push_back(ptrRetMem = createAlloca(ft->retType->getType(*c.c), c));
+		{
+			if (!ptrRetMem)
+				ptrRetMem = createAlloca(ft->retType->getType(*c.c), c);
+			argvals.push_back(ptrRetMem);
+		}
 		if (name->isVarargs(c, s))
 		{
 			for (const auto& i : args)
@@ -72,6 +75,16 @@ llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
 	{
 		throw std::runtime_error("Inte en funktion");
 	}
+}
+
+llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
+{
+	return call(nullptr, c, s);
+}
+
+void FuncCall::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const
+{
+	call(mem, c, s);
 }
 
 std::shared_ptr<Type> FuncCall::getType(Context& c, Scopes& s) const

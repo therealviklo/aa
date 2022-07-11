@@ -60,10 +60,7 @@ llvm::Value* DotOp::createCall(std::vector<llvm::Value*> args, Context& c, Scope
 		{
 			args.insert(
 				args.begin(),
-				c.builder->CreatePointerCast(
-					expr->getAddress(c, s),
-					llvm::PointerType::get(*c.c, 0)
-				)
+				expr->getAddress(c, s)
 			);
 			return c.builder->CreateCall(s.fscope[fname].getFunction(c), args);
 		}
