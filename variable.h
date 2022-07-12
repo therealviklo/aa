@@ -10,4 +10,9 @@ struct Variable
 	bool ref = false;
 
 	llvm::Value* getValue(Context& c);
+
+	operator TypedValue() const
+	{
+		return {type, var};
+	}
 };

@@ -14,6 +14,7 @@ llvm::Value* TypeNamePair::getRefValue(Context& c, Scopes& s) const
 	{
 		llvm::Value* const var = createAlloca(type->getType(*c.c), c);
 		s.vscope.add(name.name, {var, type, true});
+		s.dscope.add(s.vscope[name.name]);
 		return var;
 	}
 	return s.vscope[name.name].var;

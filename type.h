@@ -33,6 +33,7 @@ struct Type
 	virtual bool isFunctionPointer() const { return false; }
 	virtual bool isStruct() const { return false; }
 	bool isPtrReturn() const { return isArr() || isStruct(); }
+	virtual bool isTriviallyDestructible(Scopes& /*s*/) const { return true; }
 	virtual unsigned getRank() const { return 0u; }
 	virtual std::shared_ptr<Type> getTypePointedTo() const
 	{
@@ -44,6 +45,8 @@ struct Type
 	}
 
 	size_t getSize(llvm::Module& mod, llvm::LLVMContext& c) const;
+
+	virtual void destruct(llvm::Value* /*mem*/, Context& /*c*/, Scopes& /*s*/) const {}
 };
 
 inline std::shared_ptr<Type> getRealType(std::shared_ptr<Type> t)

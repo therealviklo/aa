@@ -11,7 +11,10 @@ llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 		if (ft->retType->isPtrReturn())
 		{
 			if (!ptrRetMem)
+			{
 				ptrRetMem = createAlloca(ft->retType->getType(*c.c), c);
+				c.tdscope.add({ft->retType, ptrRetMem});
+			}
 			argvals.push_back(ptrRetMem);
 		}
 		if (name->isVarargs(c, s))

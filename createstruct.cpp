@@ -7,6 +7,7 @@ llvm::Value* CreateStruct::getRefValue(Context& c, Scopes& s) const
 	{
 		llvm::Value* const mem = createAlloca(st->getType(*c.c), c);
 		construct(mem, c, s);
+		c.tdscope.add({t, mem});
 		return mem;
 	}
 	throw std::runtime_error("Inte en struct");

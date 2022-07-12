@@ -7,4 +7,6 @@ void Block::writeStatement(Context& c, Scopes& s) const
 	{
 		i->writeStatement(c, as);
 	}
+	if (!c.builder->GetInsertBlock()->getTerminator())
+		as.dscope.destroy(c, s);
 }

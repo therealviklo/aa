@@ -3,6 +3,7 @@
 void Expression::writeStatement(Context& c, Scopes& s) const
 {
 	getValue(c, s);
+	c.tdscope.destroy(c, s);
 }
 
 void Expression::getValuePtrReturn(llvm::Value* /*mem*/, Context& /*c*/, Scopes& /*s*/) const

@@ -6,14 +6,7 @@ llvm::Value* DotOp::getRefValue(Context& c, Scopes& s) const
 	if (const StructType* const st = dynamic_cast<const StructType*>(exprt.get()))
 	{
 		llvm::Value* const v =
-			c.builder->CreateGEP(
-				expr->getTypeC(c, s)->getType(*c.c),
-				expr->getAddress(c, s),
-				{
-					llvm::ConstantInt::get(s.tscope["u32"]->getType(*c.c), 0),
-					llvm::ConstantInt::get(s.tscope["u32"]->getType(*c.c), st->fieldnames.at(fieldname))
-				}
-			);
+			st->getField(expr->getAddress(c, s), st->fieldnames.at(fieldname), c, s);
 		return v;
 	}
 	throw std::runtime_error("Vänstra operanden till punktoperatorn måste vara en struct");

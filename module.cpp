@@ -30,11 +30,23 @@ void genFunction(const Function& function, Context& c, Scopes& s)
 			);
 		for (const auto& i : function.args)
 		{
-			as.vscope.add(i.name, {ai++, i.type, false});
+			if (!i.type->isTriviallyDestructible(s) || i.type->isMut())
+			{
+				llvm::Value* const mem = createAlloca(i.type->getType(*c.c), c);
+				c.builder->CreateStore(ai++, mem);
+				as.vscope.add(i.name, {mem, i.type, true});
+			}
+			else
+			{
+				as.vscope.add(i.name, {ai++, i.type, false});
+			}
 		}
 		function.body->writeStatement(c, as);
 		if (!c.builder->GetInsertBlock()->getTerminator())
+		{
+			as.dscope.destroy(c, as);
 			c.builder->CreateRetVoid();
+		}
 	}
 }
 

@@ -17,6 +17,12 @@ public:
 	bool isSame(std::shared_ptr<Type> t) const override;
 	bool isFuture() const override { return !tscope.contains(name); }
 	bool isStruct() const override { return true; }
+	bool isTriviallyDestructible(Scopes& s) const override
+	{
+		return get()->isTriviallyDestructible(s);
+	}
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
 	std::shared_ptr<Type> getUnderlyingType() const override;
+
+	void destruct(llvm::Value* mem, Context& c, Scopes& s) const override;
 };

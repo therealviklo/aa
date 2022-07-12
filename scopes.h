@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "scope.h"
+#include "destructionscope.h"
 #include "variable.h"
 #include "function.h"
 #include "type.h"
@@ -17,6 +18,7 @@ struct Scopes
 	VScope vscope;
 	FScope fscope;
 	TScope tscope;
+	DestructionScope dscope;
 
 	Scopes(Scopes* lowerScope = nullptr);
 };

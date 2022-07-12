@@ -130,6 +130,25 @@ void Parser::parseFile(Scopes& s)
 				lexer.error("Förväntade structtyp");
 			}
 		}
+		else if (lexer.tryRead("~"))
+		{
+			std::string tname = lexer.expectRegex(nameregex, "typnamn");
+			std::shared_ptr<Type> t = getRealType(s.tscope[tname]);
+			if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
+			{
+				lexer.expect("(");
+				parseFunctionArgs(
+					TypeNamePair{std::make_shared<VoidType>(), Name("~" + st->name)},
+					t,
+					true,
+					s
+				);
+			}
+			else
+			{
+				lexer.error("Förväntade structtyp");
+			}
+		}
 		else
 		{
 			std::string token = lexer.getRegex(nameregex);

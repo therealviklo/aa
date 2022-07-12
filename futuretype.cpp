@@ -34,3 +34,8 @@ std::shared_ptr<Type> FutureType::getUnderlyingType() const
 {
 	return getRealType(get());
 }
+
+void FutureType::destruct(llvm::Value* mem, Context& c, Scopes& s) const
+{
+	return get()->destruct(mem, c, s);
+}
