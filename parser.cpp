@@ -500,6 +500,30 @@ std::shared_ptr<Expression> Parser::parseExpressionRight(int lvl, std::shared_pt
 				s
 			);
 		}
+		else if (lexer.tryRead("~"))
+		{
+			const std::string tname = lexer.expectRegex(nameregex, "typnamn");
+			std::shared_ptr<Type> type = getRealType(s.tscope[tname]);
+			if (const StructType* const st = dynamic_cast<const StructType*>(type.get()))
+			{
+				lexer.expect("(");
+				lexer.expect(")");
+				return parseExpressionRight(
+					lvl,
+					std::make_shared<FuncCall>(
+						std::make_shared<Name>("~" + st->name),
+						std::vector<std::shared_ptr<Expression>>({
+							std::make_shared<AddrOf>(left)
+						})
+					),
+					s
+				);
+			}
+			else
+			{
+				lexer.error("Förväntade att typen är en struct");
+			}
+		}
 		else
 		{
 			std::string fieldname = lexer.expectRegex(nameregex, "namn");

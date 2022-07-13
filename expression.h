@@ -22,6 +22,8 @@ public:
 	virtual std::shared_ptr<Type> getType(Context& c, Scopes& s) const = 0;
 	std::shared_ptr<Type> getTypeC(Context& c, Scopes& s) const;
 
+	virtual bool isUninitialised() const { return false; }
+
 	virtual llvm::Value* createCall(std::vector<llvm::Value*> args, Context& c, Scopes& s) const;
 	virtual std::vector<std::shared_ptr<Type>> getCallArgs(Context& c, Scopes& s) const;
 	virtual bool isVarargs(Context& c, Scopes& s) const;
