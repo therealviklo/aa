@@ -99,3 +99,26 @@ std::shared_ptr<Type> FuncCall::getType(Context& c, Scopes& s) const
 	}
 	throw std::runtime_error("Inte en funktion");
 }
+
+llvm::Value* FuncCall::getAddress(Context& c, Scopes& s) const
+{
+	std::shared_ptr<Type> t = getRealType(name->getTypeC(c, s));
+	if (const FunctionType* const ft = dynamic_cast<const FunctionType*>(t.get()))
+	{
+		if (ft->retType->isPtrReturn())
+		{
+			llvm::Value* const ptrRetMem = createAlloca(ft->retType->getType(*c.c), c);
+			c.tdscope.add({ft->retType, ptrRetMem});
+			call(ptrRetMem, c, s);
+			return ptrRetMem;
+		}
+		else
+		{
+			return Expression::getAddress(c, s);
+		}
+	}
+	else
+	{
+		throw std::runtime_error("Inte en funktion");
+	}
+}
