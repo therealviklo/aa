@@ -23,6 +23,19 @@ llvm::Type* FloatType::getType(llvm::LLVMContext& c) const
 	}
 }
 
+std::string FloatType::getName() const
+{
+	switch (fkind)
+	{
+		case FloatKind::f16:
+		return "f16";
+		case FloatKind::f32:
+		return "f32";
+		case FloatKind::f64:
+		return "f64";
+	}
+}
+
 unsigned FloatType::getRank() const
 {
 	switch (fkind)

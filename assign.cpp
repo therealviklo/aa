@@ -7,13 +7,7 @@ llvm::Value* Assign::getRefValue(Context& c, Scopes& s) const
 	llvm::Value* const var = left->getRefValue(c, s);
 	if (!left->isUninitialised() && !left->getTypeC(c, s)->isTriviallyDestructible(s))
 		left->getTypeC(c, s)->destruct(var, c, s);
-	if (left->getTypeC(c, s)->isSame(right->getTypeC(c, s)) && right->canPtrReturn())
-	{
-		right->getValuePtrReturn(var, c, s);
-		return var;
-	}
-	llvm::Value* const val = convert(*right, left->getTypeC(c, s), c, s);
-	c.builder->CreateStore(val, var);
+	copy(right, var, left->getTypeC(c, s), c, s);
 	return var;
 }
 

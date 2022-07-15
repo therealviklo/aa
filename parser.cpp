@@ -155,21 +155,37 @@ void Parser::parseFile(Scopes& s)
 			if (!s.tscope.contains(token))
 				lexer.error("Oväntad token \"" + token + '\"');
 			std::shared_ptr<Type> type = parseType(token, s);
-			std::string name = lexer.expectRegex(nameregex, "namn");
-			std::shared_ptr<Type> methodType;
-			if (s.tscope.contains(name))
+			if (lexer.tryRead("->"))
 			{
-				std::shared_ptr<Type> t = getRealType(s.tscope[name]);
-				if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
+				std::shared_ptr<Type> type2 = parseType(lexer.getRegex(nameregex), s);
+				if (!type->isStruct() && !type2->isStruct())
+					lexer.error("En av typerna i en konverteringsfunktion måste vara en structtyp");
+				lexer.expect("(");
+				parseFunctionArgs(
+					TypeNamePair{type2, Name(type->getName() + "$$" + type2->getName())},
+					type->isStruct() ? type : nullptr,
+					false,
+					s
+				);
+			}
+			else
+			{
+				std::string name = lexer.expectRegex(nameregex, "namn");
+				std::shared_ptr<Type> methodType;
+				if (s.tscope.contains(name))
 				{
-					if (lexer.tryRead("."))
+					std::shared_ptr<Type> t = getRealType(s.tscope[name]);
+					if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
 					{
-						name = st->name + "$" + lexer.expectRegex(nameregex, "namn");
-						methodType = t;
+						if (lexer.tryRead("."))
+						{
+							name = st->name + "$" + lexer.expectRegex(nameregex, "namn");
+							methodType = t;
+						}
 					}
 				}
+				parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), methodType, false, s);
 			}
-			parseTypeNamePair(TypeNamePair(type, Name(std::move(name))), methodType, false, s);
 		}
 	}
 }
@@ -646,8 +662,9 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 			const unsigned long long num = std::stoull(numstr);
 			type = std::make_shared<ArrayType>(type, num);
 		}
-		else if (lexer.tryRead("("))
+		else if (lexer.tryRead("<-"))
 		{
+			lexer.expect("(");
 			std::vector<std::shared_ptr<Type>> argTypes;
 			bool varargs = false;
 			if (!lexer.tryRead(")"))

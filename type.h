@@ -19,6 +19,7 @@ struct Type
 
 	virtual llvm::Type* getType(llvm::LLVMContext& c) const = 0;
 
+	virtual std::string getName() const = 0;
 	virtual bool isSame(std::shared_ptr<Type> t) const;
 	virtual bool isFloat() const { return false; }
 	virtual bool isInt() const { return false; }

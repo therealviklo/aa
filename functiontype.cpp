@@ -42,3 +42,20 @@ llvm::Type* FunctionType::getType(llvm::LLVMContext& c) const
 {
 	return getFunctionType(c)->getPointerTo();
 }
+
+std::string FunctionType::getName() const
+{
+	std::string ret = retType->getName();
+	ret += '(';
+	bool firstArg = true;
+	for (const auto& i : argTypes)
+	{
+		if (firstArg)
+			firstArg = false;
+		else
+			ret += ',';
+		ret += i->getName();
+	}
+	ret += ')';
+	return ret;
+}

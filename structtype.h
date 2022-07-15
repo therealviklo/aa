@@ -21,6 +21,7 @@ public:
 		name(std::move(name)),
 		packed(packed) {}
 
+	std::string getName() const override { return name; }
 	bool isSame(std::shared_ptr<Type> t) const override;
 	bool isStruct() const override { return true; }
 	bool isTriviallyDestructible(Scopes& s) const override;

@@ -15,6 +15,11 @@ llvm::Type* IntegerType::getType(llvm::LLVMContext& c) const
 	return llvm::IntegerType::get(c, bits);
 }
 
+std::string IntegerType::getName() const
+{
+	return (unsign ? "u" : "i") + std::to_string(bits);
+}
+
 unsigned IntegerType::getRank() const
 {
 	return bits + unsign;

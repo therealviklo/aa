@@ -17,5 +17,6 @@ public:
 	bool isSame(std::shared_ptr<Type> t) const override;
 	llvm::FunctionType* getFunctionType(llvm::LLVMContext& c) const;
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
+	std::string getName() const override;
 	bool isFunctionPointer() const override { return true; }
 };

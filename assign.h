@@ -3,6 +3,7 @@
 #include "expression.h"
 #include "convert.h"
 #include "createstruct.h"
+#include "copy.h"
 
 struct Assign : public Expression
 {

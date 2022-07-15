@@ -52,7 +52,7 @@ llvm::Value* DotOp::createCall(std::vector<llvm::Value*> args, Context& c, Scope
 		if (s.fscope.contains(fname))
 		{
 			args.insert(
-				args.begin(),
+				s.fscope[fname].retType->isPtrReturn() ? ++args.begin() : args.begin(),
 				expr->getAddress(c, s)
 			);
 			return c.builder->CreateCall(s.fscope[fname].getFunction(c), args);

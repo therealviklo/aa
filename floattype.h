@@ -18,6 +18,7 @@ public:
 	
 	bool isSame(std::shared_ptr<Type> t) const override;
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
+	std::string getName() const override ;
 	bool isSigned() const override { return true; }
 	bool isFloat() const override { return true; }
 	unsigned getRank() const override;

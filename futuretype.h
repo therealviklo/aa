@@ -14,6 +14,7 @@ public:
 		tscope(tscope),
 		name(std::move(name)) {}
 	
+	std::string getName() const override { return name; }
 	bool isSame(std::shared_ptr<Type> t) const override;
 	bool isFuture() const override { return !tscope.contains(name); }
 	bool isStruct() const override { return true; }

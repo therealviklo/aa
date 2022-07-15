@@ -16,6 +16,7 @@ public:
 	bool isSame(std::shared_ptr<Type> t) const override;
 
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
+	std::string getName() const override { return type->getName() + "[" + std::to_string(num) + "]"; }
 	bool isArr() const override { return true; }
 	bool isTriviallyDestructible(Scopes& s) const override;
 	std::shared_ptr<Type> getTypePointedTo() const override { return type; }

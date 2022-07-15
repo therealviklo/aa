@@ -12,6 +12,7 @@ public:
 	bool isSame(std::shared_ptr<Type> t) const override { return this->t->isSame(t); }
 	llvm::Type* getType(llvm::LLVMContext& c) const override { return t->getType(c); }
 
+	std::string getName() const override { return t->getName(); }
 	bool isFloat() const override { return t->isFloat(); }
 	bool isInt() const override { return t->isInt(); }
 	bool isSigned() const override { return t->isSigned(); }
