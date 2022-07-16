@@ -18,6 +18,7 @@ public:
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
 	std::string getName() const override { return type->getName() + "[" + std::to_string(num) + "]"; }
 	bool isArr() const override { return true; }
+	size_t getArrSize() const override { return num; }
 	bool isTriviallyDestructible(Scopes& s) const override;
 	std::shared_ptr<Type> getTypePointedTo() const override { return type; }
 

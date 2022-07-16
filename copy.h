@@ -4,5 +4,7 @@
 #include "scopes.h"
 #include "expression.h"
 #include "convert.h"
+#include "subscript.h"
+#include "name.h"
 
 void copy(std::shared_ptr<Expression> from, llvm::Value* to, std::shared_ptr<Type> type, Context& c, Scopes& s);

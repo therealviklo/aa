@@ -30,6 +30,7 @@ struct Type
 	virtual bool isMut() const { return false; }
 	virtual bool isRef() const { return false; }
 	virtual bool isArr() const { return false; }
+	virtual size_t getArrSize() const { return 0; }
 	virtual bool isFuture() const { return false; }
 	virtual bool isFunctionPointer() const { return false; }
 	virtual bool isStruct() const { return false; }

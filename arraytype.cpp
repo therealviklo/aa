@@ -26,7 +26,7 @@ void ArrayType::destruct(llvm::Value* mem, Context& c, Scopes& s) const
 	{
 		type->destruct(
 			c.builder->CreateGEP(
-				type->getType(*c.c),
+				getType(*c.c),
 				mem,
 				{
 					llvm::ConstantInt::get(s.tscope["usize"]->getType(*c.c), 0),
