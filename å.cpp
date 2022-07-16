@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
 		if (out.empty())
 			throw std::runtime_error("Ingen utfil angavs.");
 
-		Parser p(in, std::make_shared<std::set<fs::path>>());
 		Scopes s;
 		Context c;
 		c.c = std::make_unique<llvm::LLVMContext>();
@@ -55,6 +54,10 @@ int main(int argc, char* argv[])
 		c.mod = std::make_unique<llvm::Module>(out, *c.c);
 		initModule(triple, c);
 		addDefaultTypes(c, s.tscope);
+		auto visitedFiles = std::make_shared<std::set<fs::path>>();
+		Parser baseparser("lib/base.å", visitedFiles);
+		baseparser.parseFile(s);
+		Parser p(in, visitedFiles);
 		p.parseFile(s);
 		genModule(c, s);
 		std::error_code err;
