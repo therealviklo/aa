@@ -189,7 +189,7 @@ void Convert::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const
 	callPtrReturnConvFun(mem, *expr, newType, c, s);
 }
 
-bool Convert::canPtrReturn() const
+bool Convert::canPtrReturn(Context& /*c*/, Scopes& /*s*/) const
 {
 	return newType->isPtrReturn();
 }

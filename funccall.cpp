@@ -90,6 +90,19 @@ void FuncCall::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const
 	call(mem, c, s);
 }
 
+bool FuncCall::canPtrReturn(Context& c, Scopes& s) const
+{
+	std::shared_ptr<Type> t = getRealType(name->getTypeC(c, s));
+	if (const FunctionType* const ft = dynamic_cast<const FunctionType*>(t.get()))
+	{
+		return ft->retType->isPtrReturn();
+	}
+	else
+	{
+		throw std::runtime_error("Inte en funktion");
+	}
+}
+
 std::shared_ptr<Type> FuncCall::getType(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getRealType(name->getTypeC(c, s));
