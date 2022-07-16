@@ -1,0 +1,62 @@
+usize strlen(u8* str)
+{
+	usize mut len = 0u;
+	u8* mut curr = str;
+	while (curr!)
+	{
+		len = len + 1u;
+		curr = curr + 1u;
+	}
+	return len;
+}
+
+type String
+{
+	u8 mut* str;
+	usize len;
+}
+
+new String(u8* str, usize mut len)
+{
+	this.str = malloc(len + 1u);
+	this.len = len;
+	while (len)
+	{
+		len = len - 1u;
+		this.str[len] = str[len];
+	}
+	this.str[this.len] = 0u;
+}
+
+~String()
+{
+	free(this.str);
+}
+
+String -> String()
+{
+	return new String(this.str, this.len);
+}
+
+u8* -> String(u8* o)
+{
+	return new String(o, strlen(o));
+}
+
+String -> u8*()
+{
+	return this.str;
+}
+
+bool -> String(bool o)
+{
+	if (o)
+		return "true";
+	else
+		return "false";
+}
+
+usize String.size()
+{
+	return this.len;
+}

@@ -1,0 +1,4 @@
+void mut* malloc(usize size);
+void free(void mut* mem);
+
+include "string.å";
