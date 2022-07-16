@@ -371,6 +371,33 @@ std::shared_ptr<Expression> Parser::parseExpression(int lvl, Scopes& s)
 			s
 		);
 	}
+	if (lexer.tryRead("\""))
+	{
+		std::string str;
+		char32_t ch;
+		while ((ch = lexer.getUnicodeChar()) != U'"')
+		{
+			if (ch == U'\\')
+				str += parseEscapedCharacter();
+			else
+				str += utf32CharToUtf8(ch);
+		}
+		return parseExpressionRight(
+			lvl,
+			std::make_shared<CreateStruct>(
+				s.tscope["String"],
+				std::vector<std::shared_ptr<Expression>>({
+					std::make_shared<StringLit>(
+						str
+					),
+					std::make_shared<Name>(
+						std::to_string(str.size()) + "u"
+					)
+				})
+			),
+			s
+		);
+	}
 	if (lexer.tryRead("l'"))
 	{
 		std::string str;
