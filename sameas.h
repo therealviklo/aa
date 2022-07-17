@@ -22,6 +22,7 @@ public:
 	bool isMut() const override { return t->isMut(); }
 	bool isRef() const override { return t->isRef(); }
 	bool isArr() const override { return t->isArr(); }
+	size_t getArrSize() const override { return t->getArrSize(); }
 	bool isFuture() const override { return t->isFuture(); }
 	unsigned getRank() const override { return t->getRank(); }
 	bool isFunctionPointer() const override { return t->isFunctionPointer(); }
