@@ -43,6 +43,11 @@ u8* -> String(u8* o)
 	return new String(o, strlen(o));
 }
 
+u8 mut* -> String(u8 mut* o)
+{
+	return [String][u8*]o;
+}
+
 String -> u8*()
 {
 	return this.str;
