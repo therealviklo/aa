@@ -46,7 +46,7 @@ llvm::Type* FunctionType::getType(llvm::LLVMContext& c) const
 std::string FunctionType::getName() const
 {
 	std::string ret = retType->getName();
-	ret += '(';
+	ret += "<-(";
 	bool firstArg = true;
 	for (const auto& i : argTypes)
 	{

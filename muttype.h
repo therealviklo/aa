@@ -8,5 +8,5 @@ struct MutType : public SameAs
 		SameAs(t) {}
 	
 	bool isMut() const override { return true; }
-	// std::type_index getUnderlyingType() const override;
+	std::string getName() const override;
 };
