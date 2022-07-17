@@ -41,6 +41,10 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, const Expression& expr, std:
 llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Context& c, Scopes& s)
 {
 	std::shared_ptr<Type> oldType = expr.getTypeC(c, s);
+	if (oldType->isSame(newType))
+	{
+		return expr.getValue(c, s);
+	}
 	const std::string convFunName = oldType->getName() + "$$" + newType->getName();
 	if (s.fscope.contains(convFunName))
 	{
@@ -151,10 +155,6 @@ llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Cont
 					llvm::ConstantInt::get(ptrIntType, 0)
 				);
 		}
-	}
-	if (oldType->isSame(newType))
-	{
-		return expr.getValue(c, s);
 	}
 	throw std::runtime_error((std::string)"Kan inte konvertera typ " + typeid(*oldType).name() + " till " + typeid(*newType).name());
 }
