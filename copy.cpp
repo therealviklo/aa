@@ -3,16 +3,20 @@
 void copy(std::shared_ptr<Expression> from, llvm::Value* to, std::shared_ptr<Type> type, Context& c, Scopes& s)
 {
 	std::shared_ptr<Expression> convfrom =
-		type->isSame(from->getTypeC(c, s)) ?
+		type->isSameUnderlying(from->getTypeC(c, s)) ?
 		from :
 		std::make_shared<Convert>(from, type);
-	if (convfrom->canPtrReturn(c, s))
+	if (type->isRef())
+	{
+		c.builder->CreateStore(from->getAddress(c, s), to);
+	}
+	else if (convfrom->canPtrReturn(c, s))
 	{
 		convfrom->getValuePtrReturn(to, c, s);
 	}
 	else if (type->isStruct())
 	{
-		const std::string convFunName = type->getName() + "$$" + type->getName();
+		const std::string convFunName = getConvFunName(type, type);
 		if (s.fscope.contains(convFunName))
 		{
 			c.builder->CreateCall(

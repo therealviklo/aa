@@ -1,6 +1,6 @@
 #include "and.h"
 
-llvm::Value* And::getValue(Context& c, Scopes& s) const
+llvm::Value* And::get(Context& c, Scopes& s) const
 {
 	llvm::Value* const l = convert(*left, s.tscope["bool"], c, s);
 	llvm::Value* const r = convert(*right, s.tscope["bool"], c, s);

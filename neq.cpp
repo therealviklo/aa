@@ -1,6 +1,6 @@
 #include "neq.h"
 
-llvm::Value* Neq::getValue(Context& c, Scopes& s) const
+llvm::Value* Neq::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())

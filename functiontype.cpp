@@ -2,16 +2,15 @@
 
 bool FunctionType::isSame(std::shared_ptr<Type> t) const
 {
-	std::shared_ptr<Type> t2 = getRealType(t);
-	if (const FunctionType* const ft = dynamic_cast<const FunctionType*>(t2.get()))
+	if (const FunctionType* const ft = dynamic_cast<const FunctionType*>(t.get()))
 	{
-		if (!ft->retType->isSame(retType))
+		if (!ft->retType->isSameReal(retType))
 			return false;
 		if (ft->argTypes.size() != argTypes.size())
 			return false;
 		for (size_t i = 0; i < argTypes.size(); i++)
 		{
-			if (!ft->argTypes[i]->isSame(argTypes[i]))
+			if (!ft->argTypes[i]->isSameReal(argTypes[i]))
 				return false;
 		}
 		return true;

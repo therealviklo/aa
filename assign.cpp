@@ -1,28 +1,25 @@
 #include "assign.h"
 
-llvm::Value* Assign::getRefValue(Context& c, Scopes& s) const
+llvm::Value* Assign::get(Context& c, Scopes& s) const
 {
 	if (!left->getTypeC(c, s)->isMut())
 		throw std::runtime_error("Oföränderlig typ");
-	llvm::Value* const var = left->getRefValue(c, s);
-	if (!left->isUninitialised() && !left->getTypeC(c, s)->isTriviallyDestructible(s))
+	if (left->isRefVar())
+	{
+		if (!left->getTypeC(c, s)->isRef())
+			throw std::runtime_error("Inte en referenstyp");
+		llvm::Value* const var = left->getRefVarAddress(c, s);
+		copy(right, var, left->getType(c, s), c, s);
+		return c.builder->CreateLoad(left->getTypeC(c, s)->getType(*c.c), var);
+	}
+	llvm::Value* const var = left->getAddress(c, s);
+	if (!left->isUninitialised() && !getValueType(left->getTypeC(c, s))->isTriviallyDestructible(s))
 		left->getTypeC(c, s)->destruct(var, c, s);
-	copy(right, var, left->getTypeC(c, s), c, s);
+	copy(right, var, getValueType(left->getTypeC(c, s)), c, s);
 	return var;
-}
-
-llvm::Value* Assign::getValue(Context& c, Scopes& s) const
-{
-	getRefValue(c, s);
-	return left->getValue(c, s);
 }
 
 std::shared_ptr<Type> Assign::getType(Context& c, Scopes& s) const
 {
-	return left->getTypeC(c, s);
-}
-
-llvm::Value* Assign::getAddress(Context& c, Scopes& s) const
-{
-	return getRefValue(c, s);
+	return makeRef(left->getTypeC(c, s));
 }

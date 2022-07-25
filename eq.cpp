@@ -1,6 +1,6 @@
 #include "eq.h"
 
-llvm::Value* Eq::getValue(Context& c, Scopes& s) const
+llvm::Value* Eq::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())

@@ -1,6 +1,6 @@
 #include "div.h"
 
-llvm::Value* Div::getValue(Context& c, Scopes& s) const
+llvm::Value* Div::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getTypeC(c, s);
 	llvm::Value* const l = convert(*left, t, c, s);

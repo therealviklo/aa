@@ -1,6 +1,6 @@
 #include "stringlit.h"
 
-llvm::Value* StringLit::getValue(Context& c, Scopes& /*s*/) const
+llvm::Value* StringLit::get(Context& c, Scopes& /*s*/) const
 {
 	return c.builder->CreateGlobalStringPtr(str);
 }

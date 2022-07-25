@@ -1,6 +1,6 @@
 #include "lt.h"
 
-llvm::Value* Lt::getValue(Context& c, Scopes& s) const
+llvm::Value* Lt::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())

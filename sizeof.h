@@ -9,6 +9,6 @@ public:
 	SizeOf(std::shared_ptr<Type> t) :
 		t(t) {}
 
-	llvm::Value* getValue(Context& c, Scopes& s) const override;
+	llvm::Value* get(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
 };

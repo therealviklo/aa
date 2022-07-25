@@ -1,6 +1,6 @@
 #include "or.h"
 
-llvm::Value* Or::getValue(Context& c, Scopes& s) const
+llvm::Value* Or::get(Context& c, Scopes& s) const
 {
 	llvm::Value* const l = convert(*left, s.tscope["bool"], c, s);
 	llvm::Value* const r = convert(*right, s.tscope["bool"], c, s);

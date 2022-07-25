@@ -2,8 +2,7 @@
 
 bool StructType::isSame(std::shared_ptr<Type> t) const
 {
-	std::shared_ptr<Type> t2 = getRealType(t);
-	if (const StructType* const st = dynamic_cast<const StructType*>(t2.get()))
+	if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
 	{
 		return name == st->name;
 	}

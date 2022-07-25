@@ -132,6 +132,7 @@ Lexer::Lexer(std::string text) :
 	cur{this->text.c_str(), 1, 1}
 {
 	tryRead("\xEF\xBB\xBF");
+	skipWhitespace();
 }
 
 char32_t Lexer::getUnicodeChar()

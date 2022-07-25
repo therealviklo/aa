@@ -162,7 +162,7 @@ void Parser::parseFile(Scopes& s)
 					lexer.error("En av typerna i en konverteringsfunktion måste vara en structtyp");
 				lexer.expect("(");
 				parseFunctionArgs(
-					TypeNamePair{type2, Name(type->getName() + "$$" + type2->getName())},
+					TypeNamePair{type2, Name(getConvFunName(type, type2))},
 					type->isStruct() ? type : nullptr,
 					false,
 					s
@@ -671,6 +671,8 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 	{
 		if (lexer.tryReadName("mut"))
 		{
+			if (type->isRef())
+				lexer.error("Referenser får inte göras mut");
 			if (type->isMut())
 				lexer.error("Dubbel mut är inte tillåtet");
 			type = std::make_shared<MutType>(type);
@@ -678,7 +680,11 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 		else if (lexer.tryRead("*"))
 		{
 			if (type->isVoid())
-				type = std::make_shared<PointerType>(s.tscope["u8"]);
+				type = std::make_shared<PointerType>(
+					type->isMut()
+					? makeMut(s.tscope["u8"])
+					: s.tscope["u8"]
+				);
 			else
 				type = std::make_shared<PointerType>(type);
 		}
@@ -688,6 +694,12 @@ std::shared_ptr<Type> Parser::parseType(const std::string& name, Scopes& s)
 			lexer.expect("]");
 			const unsigned long long num = std::stoull(numstr);
 			type = std::make_shared<ArrayType>(type, num);
+		}
+		else if (lexer.tryRead("&"))
+		{
+			if (type->isRef())
+				lexer.error("Dubbla referenstyper är inte tillåtna");
+			type = std::make_shared<RefType>(type);
 		}
 		else if (lexer.tryRead("<-"))
 		{

@@ -1,6 +1,6 @@
 #include "createstruct.h"
 
-llvm::Value* CreateStruct::getRefValue(Context& c, Scopes& s) const
+llvm::Value* CreateStruct::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getRealType(type);
 	if (const StructType* const st = dynamic_cast<const StructType*>(t.get()))
@@ -13,14 +13,6 @@ llvm::Value* CreateStruct::getRefValue(Context& c, Scopes& s) const
 	throw std::runtime_error("Inte en struct");
 }
 
-llvm::Value* CreateStruct::getValue(Context& c, Scopes& s) const
-{
-	return c.builder->CreateLoad(
-		getTypeC(c, s)->getType(*c.c),
-		getRefValue(c, s)
-	);
-}
-
 void CreateStruct::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const
 {
 	construct(mem, c, s);
@@ -28,12 +20,7 @@ void CreateStruct::getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) co
 
 std::shared_ptr<Type> CreateStruct::getType(Context& /*c*/, Scopes& /*s*/) const
 {
-	return type;
-}
-
-llvm::Value* CreateStruct::getAddress(Context& c, Scopes& s) const
-{
-	return getRefValue(c, s);
+	return makeRef(makeMut(type));
 }
 
 void CreateStruct::construct(llvm::Value* mem, Context& c, Scopes& s) const

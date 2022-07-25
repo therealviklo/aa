@@ -12,6 +12,6 @@ public:
 		expr(std::move(expr)),
 		newType(newType) {}
 
-	llvm::Value* getValue(Context& c, Scopes& s) const override;
+	llvm::Value* get(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
 };

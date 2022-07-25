@@ -1,6 +1,6 @@
 #include "bitcast.h"
 
-llvm::Value* BitCast::getValue(Context& c, Scopes& s) const
+llvm::Value* BitCast::get(Context& c, Scopes& s) const
 {
 	return c.builder->CreateBitOrPointerCast(expr->getValue(c, s), newType->getType(*c.c));
 }

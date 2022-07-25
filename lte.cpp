@@ -1,6 +1,6 @@
 #include "lte.h"
 
-llvm::Value* Lte::getValue(Context& c, Scopes& s) const
+llvm::Value* Lte::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())

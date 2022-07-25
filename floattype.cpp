@@ -2,8 +2,7 @@
 
 bool FloatType::isSame(std::shared_ptr<Type> t) const
 {
-	std::shared_ptr<Type> t2 = getRealType(t);
-	if (const FloatType* const ft = dynamic_cast<const FloatType*>(t2.get()))
+	if (const FloatType* const ft = dynamic_cast<const FloatType*>(t.get()))
 	{
 		return ft->fkind == fkind;
 	}

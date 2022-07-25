@@ -6,6 +6,31 @@ void Expression::writeStatement(Context& c, Scopes& s) const
 	c.tdscope.destroy(c, s);
 }
 
+llvm::Value* Expression::getValue(Context& c, Scopes& s) const
+{
+	if (getTypeC(c, s)->isRef())
+		return c.builder->CreateLoad(
+			getValueType(getTypeC(c, s))->getType(*c.c),
+			get(c, s)
+		);
+	else
+		return get(c, s);
+}
+
+llvm::Value* Expression::getAddress(Context& c, Scopes& s) const
+{
+	if (getTypeC(c, s)->isRef())
+	{
+		return get(c, s);
+	}
+	else
+	{
+		llvm::Value* const var = createAlloca(getTypeC(c, s)->getType(*c.c), c);
+		c.builder->CreateStore(get(c, s), var);
+		return var;
+	}
+}
+
 void Expression::getValuePtrReturn(llvm::Value* /*mem*/, Context& /*c*/, Scopes& /*s*/) const
 {
 	throw std::runtime_error("Inte pekarreturnerande uttryck");
@@ -47,11 +72,4 @@ bool Expression::isVarargs(Context& c, Scopes& s) const
 		return ft->varargs;
 	}
 	throw std::runtime_error("Inte en funktion");
-}
-
-llvm::Value* Expression::getAddress(Context& c, Scopes& s) const
-{
-	llvm::Value* const var = createAlloca(getTypeC(c, s)->getType(*c.c), c);
-	c.builder->CreateStore(getValue(c, s), var);
-	return var;
 }

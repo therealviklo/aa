@@ -43,19 +43,23 @@ namespace
 	}
 }
 
-llvm::Value* Name::getRefValue(Context& /*c*/, Scopes& s) const
-{
-	if (!s.vscope.contains(name))
-		throw std::runtime_error("Okänd variabel");
-	if (!s.vscope[name].ref)
-		throw std::runtime_error("Inte en referens");
-	return s.vscope[name].var;
-}
+// llvm::Value* Name::getRefValue(Context& /*c*/, Scopes& s) const
+// {
+// 	if (!s.vscope.contains(name))
+// 		throw std::runtime_error("Okänd variabel");
+// 	if (!s.vscope[name].ref)
+// 		throw std::runtime_error("Inte en referens");
+// 	return s.vscope[name].var;
+// }
 
-llvm::Value* Name::getValue(Context& c, Scopes& s) const
+llvm::Value* Name::get(Context& c, Scopes& s) const
 {
 	if (s.vscope.contains(name))
-		return s.vscope[name].getValue(c);
+	{
+		if (s.vscope[name].type->isRef())
+			return s.vscope[name].getValue(c);
+		return s.vscope[name].var;
+	}
 	llvm::Type* const t = getTypeC(c, s)->getType(*c.c);
 	if (name == "true")
 		return llvm::ConstantInt::get(t, 1);
@@ -167,7 +171,7 @@ std::shared_ptr<Type> Name::getType(Context& /*c*/, Scopes& s) const
 		return s.tscope["f32"];
 	if (std::regex_search(name, nanf64regex))
 		return s.tscope["f64"];
-	return s.vscope[name].type;
+	return s.vscope[name].ref ? makeRef(s.vscope[name].type) : s.vscope[name].type;
 }
 
 llvm::Value* Name::createCall(std::vector<llvm::Value*> args, Context& c, Scopes& s) const
@@ -175,11 +179,4 @@ llvm::Value* Name::createCall(std::vector<llvm::Value*> args, Context& c, Scopes
 	if (s.fscope.contains(name))
 		return c.builder->CreateCall(s.fscope[name].getFunction(c), args);
 	return Expression::createCall(std::move(args), c, s);
-}
-
-llvm::Value* Name::getAddress(Context& c, Scopes& s) const
-{
-	if (s.vscope.contains(name) && s.vscope[name].ref)
-		return s.vscope[name].var;
-	return Expression::getAddress(c, s);
 }

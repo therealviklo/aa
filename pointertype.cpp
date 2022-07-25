@@ -2,10 +2,9 @@
 
 bool PointerType::isSame(std::shared_ptr<Type> t) const
 {
-	std::shared_ptr<Type> t2 = getRealType(t);
-	if (const PointerType* const pt = dynamic_cast<const PointerType*>(t2.get()))
+	if (const PointerType* const pt = dynamic_cast<const PointerType*>(t.get()))
 	{
-		return pt->containedType->isSame(containedType);
+		return pt->containedType->isSameReal(containedType);
 	}
 	return false;
 }

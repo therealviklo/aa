@@ -9,7 +9,7 @@ public:
 	SameAs(std::shared_ptr<Type> t) :
 		t(t) {}
 
-	bool isSame(std::shared_ptr<Type> t) const override { return this->t->isSame(t); }
+	bool isSame(std::shared_ptr<Type> t) const override;
 	llvm::Type* getType(llvm::LLVMContext& c) const override { return t->getType(c); }
 
 	std::string getName() const override { return t->getName(); }
@@ -29,7 +29,8 @@ public:
 	bool isStruct() const override { return t->isStruct(); }
 	bool isTriviallyDestructible(Scopes& s) const override { return t->isTriviallyDestructible(s); }
 	std::shared_ptr<Type> getTypePointedTo() const override { return t->getTypePointedTo(); }
-	std::shared_ptr<Type> getUnderlyingType() const override { return getRealType(t); }
+	std::shared_ptr<Type> getUnderlyingType() const override { return ::getUnderlyingType(t); }
+	std::shared_ptr<Type> getValueType() const override { return ::getValueType(t); }
 
 	void destruct(llvm::Value* mem, Context& c, Scopes& s) const override
 	{

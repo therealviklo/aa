@@ -1,6 +1,6 @@
 #include "negate.h"
 
-llvm::Value* Neg::getValue(Context& c, Scopes& s) const
+llvm::Value* Neg::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getTypeC(c, s);
 	if (t->isInt())
@@ -12,5 +12,5 @@ llvm::Value* Neg::getValue(Context& c, Scopes& s) const
 
 std::shared_ptr<Type> Neg::getType(Context& c, Scopes& s) const
 {
-	return expr->getTypeC(c, s);
+	return getValueType(expr->getTypeC(c, s));
 }

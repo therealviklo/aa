@@ -12,8 +12,7 @@ bool FutureType::isSame(std::shared_ptr<Type> t) const
 {
 	if (isFuture())
 	{
-		std::shared_ptr<Type> t2 = getRealType(t);
-		if (const FutureType* const ft = dynamic_cast<const FutureType*>(t2.get()))
+		if (const FutureType* const ft = dynamic_cast<const FutureType*>(t.get()))
 		{
 			return ft->name == name;
 		}
@@ -21,18 +20,8 @@ bool FutureType::isSame(std::shared_ptr<Type> t) const
 	}
 	else
 	{
-		return get()->isSame(t);
+		return get()->isSameReal(t);
 	}
-}
-
-llvm::Type* FutureType::getType(llvm::LLVMContext& c) const
-{
-	return get()->getType(c);
-}
-
-std::shared_ptr<Type> FutureType::getUnderlyingType() const
-{
-	return getRealType(get());
 }
 
 void FutureType::destruct(llvm::Value* mem, Context& c, Scopes& s) const

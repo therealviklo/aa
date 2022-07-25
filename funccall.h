@@ -18,7 +18,7 @@ public:
 		name(std::move(name)),
 		args(std::move(args)) {}
 
-	llvm::Value* getValue(Context& c, Scopes& s) const override;
+	llvm::Value* get(Context& c, Scopes& s) const override;
 	void getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const override;
 	bool canPtrReturn(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;

@@ -1,6 +1,6 @@
 #include "mul.h"
 
-llvm::Value* Mul::getValue(Context& c, Scopes& s) const
+llvm::Value* Mul::get(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> t = getTypeC(c, s);
 	llvm::Value* const l = convert(*left, t, c, s);

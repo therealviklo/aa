@@ -80,7 +80,7 @@ llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 	}
 }
 
-llvm::Value* FuncCall::getValue(Context& c, Scopes& s) const
+llvm::Value* FuncCall::get(Context& c, Scopes& s) const
 {
 	return call(nullptr, c, s);
 }

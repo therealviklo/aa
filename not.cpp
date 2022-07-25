@@ -1,6 +1,6 @@
 #include "not.h"
 
-llvm::Value* Not::getValue(Context& c, Scopes& s) const
+llvm::Value* Not::get(Context& c, Scopes& s) const
 {
 	llvm::Value* const v = convert(*expr, s.tscope["bool"], c, s);
 	return c.builder->CreateNot(v);

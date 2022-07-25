@@ -22,8 +22,10 @@ public:
 	{
 		return get()->isTriviallyDestructible(s);
 	}
-	llvm::Type* getType(llvm::LLVMContext& c) const override;
-	std::shared_ptr<Type> getUnderlyingType() const override;
+	llvm::Type* getType(llvm::LLVMContext& c) const override { return get()->getType(c); }
+	std::shared_ptr<Type> getRealType() const override { return ::getRealType(get()); }
+	std::shared_ptr<Type> getUnderlyingType() const override { return ::getUnderlyingType(get()); }
+	std::shared_ptr<Type> getValueType() const override { return ::getValueType(get()); }
 
 	void destruct(llvm::Value* mem, Context& c, Scopes& s) const override;
 };

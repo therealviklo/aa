@@ -1,6 +1,6 @@
 #include "addrof.h"
 
-llvm::Value* AddrOf::getValue(Context& c, Scopes& s) const
+llvm::Value* AddrOf::get(Context& c, Scopes& s) const
 {
 	return expr->getAddress(c, s);
 }

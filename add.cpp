@@ -1,21 +1,21 @@
 #include "add.h"
 
-llvm::Value* Add::getValue(Context& c, Scopes& s) const
+llvm::Value* Add::get(Context& c, Scopes& s) const
 {
-	if (left->getTypeC(c, s)->isPointer())
+	if (getValueType(left->getTypeC(c, s))->isPointer())
 	{
 		return
 			c.builder->CreateGEP(
-				left->getTypeC(c, s)->getTypePointedTo()->getType(*c.c),
+				getValueType(left->getTypeC(c, s))->getTypePointedTo()->getType(*c.c),
 				left->getValue(c, s),
 				right->getValue(c, s)
 			);
 	}
-	if (right->getTypeC(c, s)->isPointer())
+	if (getValueType(right->getTypeC(c, s))->isPointer())
 	{
 		return
 			c.builder->CreateGEP(
-				right->getTypeC(c, s)->getTypePointedTo()->getType(*c.c),
+				getValueType(right->getTypeC(c, s))->getTypePointedTo()->getType(*c.c),
 				right->getValue(c, s),
 				left->getValue(c, s)
 			);
@@ -32,9 +32,9 @@ llvm::Value* Add::getValue(Context& c, Scopes& s) const
 
 std::shared_ptr<Type> Add::getType(Context& c, Scopes& s) const
 {
-	if (left->getTypeC(c, s)->isPointer())
-		return left->getTypeC(c, s);
-	if (right->getTypeC(c, s)->isPointer())
-		return right->getTypeC(c, s);
+	if (getValueType(left->getTypeC(c, s))->isPointer())
+		return getValueType(left->getTypeC(c, s));
+	if (getValueType(right->getTypeC(c, s))->isPointer())
+		return getValueType(right->getTypeC(c, s));
 	return commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 }

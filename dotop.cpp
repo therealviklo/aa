@@ -1,8 +1,8 @@
 #include "dotop.h"
 
-llvm::Value* DotOp::getRefValue(Context& c, Scopes& s) const
+llvm::Value* DotOp::get(Context& c, Scopes& s) const
 {
-	std::shared_ptr<Type> exprt = getRealType(expr->getTypeC(c, s));
+	std::shared_ptr<Type> exprt = getValueType(expr->getTypeC(c, s));
 	if (const StructType* const st = dynamic_cast<const StructType*>(exprt.get()))
 	{
 		llvm::Value* const v =
@@ -12,18 +12,9 @@ llvm::Value* DotOp::getRefValue(Context& c, Scopes& s) const
 	throw std::runtime_error("Vänstra operanden till punktoperatorn måste vara en struct");
 }
 
-llvm::Value* DotOp::getValue(Context& c, Scopes& s) const
-{
-	return
-		c.builder->CreateLoad(
-			getTypeC(c, s)->getType(*c.c),
-			getRefValue(c, s)
-		);
-}
-
 std::shared_ptr<Type> DotOp::getType(Context& c, Scopes& s) const
 {
-	std::shared_ptr<Type> exprt = getRealType(expr->getTypeC(c, s));
+	std::shared_ptr<Type> exprt = getValueType(expr->getTypeC(c, s));
 	if (const StructType* const st = dynamic_cast<const StructType*>(exprt.get()))
 	{
 		const std::string fname = st->name + "$" + fieldname;
@@ -34,10 +25,10 @@ std::shared_ptr<Type> DotOp::getType(Context& c, Scopes& s) const
 		else
 		{
 			std::shared_ptr<Type> t = st->fields[st->fieldnames.at(fieldname)];
-			if (expr->getTypeC(c, s)->isMut() && !t->isMut())
-				return std::make_shared<MutType>(t);
+			if (expr->getTypeC(c, s)->isMut())
+				return makeRef(makeMut(t));
 			else
-				return t;
+				return makeRef(t);
 		}
 	}
 	throw std::runtime_error("Vänstra operanden till punktoperatorn måste vara en struct");
@@ -45,7 +36,7 @@ std::shared_ptr<Type> DotOp::getType(Context& c, Scopes& s) const
 
 llvm::Value* DotOp::createCall(std::vector<llvm::Value*> args, Context& c, Scopes& s) const
 {
-	std::shared_ptr<Type> exprt = getRealType(expr->getTypeC(c, s));
+	std::shared_ptr<Type> exprt = getValueType(expr->getTypeC(c, s));
 	if (const StructType* const st = dynamic_cast<const StructType*>(exprt.get()))
 	{
 		const std::string fname = st->name + "$" + fieldname;
@@ -64,7 +55,7 @@ llvm::Value* DotOp::createCall(std::vector<llvm::Value*> args, Context& c, Scope
 
 std::vector<std::shared_ptr<Type>> DotOp::getCallArgs(Context& c, Scopes& s) const
 {
-	std::shared_ptr<Type> exprt = getRealType(expr->getTypeC(c, s));
+	std::shared_ptr<Type> exprt = getValueType(expr->getTypeC(c, s));
 	if (const StructType* const st = dynamic_cast<const StructType*>(exprt.get()))
 	{
 		const std::string fname = st->name + "$" + fieldname;
@@ -79,9 +70,4 @@ std::vector<std::shared_ptr<Type>> DotOp::getCallArgs(Context& c, Scopes& s) con
 		return Expression::getCallArgs(c, s);
 	}
 	throw std::runtime_error("Vänstra operanden till punktoperatorn måste vara en struct");
-}
-
-llvm::Value* DotOp::getAddress(Context& c, Scopes& s) const
-{
-	return getRefValue(c, s);
 }

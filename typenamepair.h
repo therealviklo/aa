@@ -15,9 +15,9 @@ struct TypeNamePair : public Expression
 		type(type),
 		name(name.name) {}
 	
-	llvm::Value* getRefValue(Context& c, Scopes& s) const override;
-	llvm::Value* getValue(Context& c, Scopes& s) const override;
+	llvm::Value* get(Context& c, Scopes& s) const override;
+	llvm::Value* getRefVarAddress(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
 	bool isUninitialised() const override { return true; }
-	llvm::Value* getAddress(Context& c, Scopes& s) const override;
+	bool isRefVar() const override { return type->isRef(); }
 };

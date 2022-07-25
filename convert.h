@@ -16,10 +16,15 @@ public:
 		expr(std::move(expr)),
 		newType(newType) {}
 
-	llvm::Value* getValue(Context& c, Scopes& s) const override;
+	llvm::Value* get(Context& c, Scopes& s) const override;
 	void getValuePtrReturn(llvm::Value* mem, Context& c, Scopes& s) const override;
 	bool canPtrReturn(Context& c, Scopes& s) const override;
 	std::shared_ptr<Type> getType(Context& c, Scopes& s) const override;
 
 	llvm::Value* getAddress(Context& c, Scopes& s) const override;
 };
+
+inline std::string getConvFunName(std::shared_ptr<Type> from, std::shared_ptr<Type> to)
+{
+	return getValueType(from)->getName() + "$$" + to->getName();
+}

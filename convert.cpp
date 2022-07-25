@@ -7,8 +7,8 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, const Expression& expr, std:
 		mem = createAlloca(newType->getType(*c.c), c);
 		c.tdscope.add({newType, mem});
 	}
-	std::shared_ptr<Type> oldType = expr.getTypeC(c, s);
-	const std::string convFunName = oldType->getName() + "$$" + newType->getName();
+	std::shared_ptr<Type> oldType = getValueType(expr.getTypeC(c, s));
+	const std::string convFunName = getConvFunName(oldType, newType);
 	if (s.fscope[convFunName].methodType)
 	{
 		c.builder->CreateCall(
@@ -20,7 +20,14 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, const Expression& expr, std:
 	{
 		if (s.fscope[convFunName].args.size() != 1)
 			throw std::runtime_error("Ogiltig konverteringsfunktion");
-		if (s.fscope[convFunName].args[0].type->isSame(oldType))
+		if (s.fscope[convFunName].args[0].type->isRef())
+		{
+			c.builder->CreateCall(
+				s.fscope[convFunName].getFunction(c),
+				{mem, expr.getAddress(c, s)}
+			);
+		}
+		else if (s.fscope[convFunName].args[0].type->isSameUnderlying(oldType))
 		{
 			c.builder->CreateCall(
 				s.fscope[convFunName].getFunction(c),
@@ -29,6 +36,10 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, const Expression& expr, std:
 		}
 		else
 		{
+			if (oldType->isRef() ||
+				!s.fscope[convFunName].args[0].type->isPointer() ||
+				!s.fscope[convFunName].args[0].type->getTypePointedTo()->isSameReal(oldType))
+				throw std::runtime_error("Ogiltig konverteringsfunktion");
 			c.builder->CreateCall(
 				s.fscope[convFunName].getFunction(c),
 				{mem, expr.getAddress(c, s)}
@@ -41,11 +52,18 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, const Expression& expr, std:
 llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Context& c, Scopes& s)
 {
 	std::shared_ptr<Type> oldType = expr.getTypeC(c, s);
-	if (oldType->isSame(newType))
+	if (newType->isRef())
+	{
+		if (oldType->isRef())
+			return expr.getAddress(c, s);
+		throw std::runtime_error("Kan inte konvertera icke-referens till referens");
+	}
+	else if (oldType->isSameValue(newType))
 	{
 		return expr.getValue(c, s);
 	}
-	const std::string convFunName = oldType->getName() + "$$" + newType->getName();
+	oldType = getValueType(oldType);
+	const std::string convFunName = getConvFunName(oldType, newType);
 	if (s.fscope.contains(convFunName))
 	{
 		if (newType->isPtrReturn())
@@ -68,7 +86,14 @@ llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Cont
 			{
 				if (s.fscope[convFunName].args.size() != 1)
 					throw std::runtime_error("Ogiltig konverteringsfunktion");
-				if (s.fscope[convFunName].args[0].type->isSame(oldType))
+				if (s.fscope[convFunName].args[0].type->isRef())
+				{
+					return c.builder->CreateCall(
+						s.fscope[convFunName].getFunction(c),
+						{expr.getAddress(c, s)}
+					);
+				}
+				if (s.fscope[convFunName].args[0].type->isSameUnderlying(oldType))
 				{
 					return c.builder->CreateCall(
 						s.fscope[convFunName].getFunction(c),
@@ -77,6 +102,10 @@ llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Cont
 				}
 				else
 				{
+					if (oldType->isRef() ||
+						!s.fscope[convFunName].args[0].type->isPointer() ||
+						!s.fscope[convFunName].args[0].type->getTypePointedTo()->isSameReal(oldType))
+						throw std::runtime_error("Ogiltig konverteringsfunktion");
 					return c.builder->CreateCall(
 						s.fscope[convFunName].getFunction(c),
 						{expr.getAddress(c, s)}
@@ -156,7 +185,7 @@ llvm::Value* convert(const Expression& expr, std::shared_ptr<Type> newType, Cont
 				);
 		}
 	}
-	throw std::runtime_error((std::string)"Kan inte konvertera typ " + typeid(*oldType).name() + " till " + typeid(*newType).name());
+	throw std::runtime_error((std::string)"Kan inte konvertera typ " + oldType->getName() + " till " + newType->getName());
 }
 
 llvm::Value* forceConvert(const Expression& expr, std::shared_ptr<Type> newType, Context& c, Scopes& s)
@@ -179,7 +208,7 @@ llvm::Value* forceConvert(const Expression& expr, std::shared_ptr<Type> newType,
 	return convert(expr, newType, c, s);
 }
 
-llvm::Value* Convert::getValue(Context& c, Scopes& s) const
+llvm::Value* Convert::get(Context& c, Scopes& s) const
 {
 	return convert(*expr, newType, c, s);
 }
@@ -202,7 +231,7 @@ std::shared_ptr<Type> Convert::getType(Context& /*c*/, Scopes& /*s*/) const
 llvm::Value* Convert::getAddress(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> oldType = expr->getTypeC(c, s);
-	const std::string convFunName = oldType->getName() + "$$" + newType->getName();
+	const std::string convFunName = getConvFunName(oldType, newType);
 	if (!s.fscope.contains(convFunName) || !newType->isPtrReturn())
 		return Expression::getAddress(c, s);
 	return callPtrReturnConvFun(nullptr, *expr, newType, c, s);
