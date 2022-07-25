@@ -61,6 +61,11 @@ bool -> String(bool o)
 		return "false";
 }
 
+String -> bool()
+{
+	return this.len;
+}
+
 usize String.size()
 {
 	return this.len;

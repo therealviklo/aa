@@ -3,7 +3,7 @@
 void copy(std::shared_ptr<Expression> from, llvm::Value* to, std::shared_ptr<Type> type, Context& c, Scopes& s)
 {
 	std::shared_ptr<Expression> convfrom =
-		type->isSameUnderlying(from->getTypeC(c, s)) ?
+		!type->isRef() && type->isSameValue(from->getTypeC(c, s)) ?
 		from :
 		std::make_shared<Convert>(from, type);
 	if (type->isRef())
