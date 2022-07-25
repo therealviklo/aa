@@ -5,8 +5,8 @@ llvm::Value* Eq::get(Context& c, Scopes& s) const
 	std::shared_ptr<Type> t = commonType(left->getTypeC(c, s), right->getTypeC(c, s));
 	if (t->isPointer())
 		t = s.tscope["uptr"];
-	llvm::Value* const l = forceConvert(*left, t, c, s);
-	llvm::Value* const r = forceConvert(*right, t, c, s);
+	llvm::Value* const l = forceConvert(left, t, c, s);
+	llvm::Value* const r = forceConvert(right, t, c, s);
 	if (t->isInt() || t-> isBool())
 		return c.builder->CreateICmpEQ(l, r);
 	if (t->isFloat())

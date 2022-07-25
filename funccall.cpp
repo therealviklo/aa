@@ -27,19 +27,19 @@ llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 					if (t->isFloat())
 					{	
 						t = commonType(t, s.tscope["f64"]);
-						argvals.push_back(convert(*i, t, c, s));
+						argvals.push_back(convert(i, t, c, s));
 					}
 					else if (t->isInt() || t->isBool())
 					{
 						if (t->isSigned())
 						{
 							t = commonType(t, s.tscope["i32"]);
-							argvals.push_back(convert(*i, t, c, s));
+							argvals.push_back(convert(i, t, c, s));
 						}
 						else
 						{
 							t = commonType(t, s.tscope["u32"]);
-							argvals.push_back(convert(*i, t, c, s));
+							argvals.push_back(convert(i, t, c, s));
 						}
 					}
 					else
@@ -49,7 +49,7 @@ llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 				}
 				else
 				{
-					argvals.push_back(convert(*i, *ati++, c, s));
+					argvals.push_back(convert(i, *ati++, c, s));
 				}
 			}
 		}
@@ -59,7 +59,7 @@ llvm::Value* FuncCall::call(llvm::Value* ptrRetMem, Context& c, Scopes& s) const
 			{
 				if (ati == argTypes.end())
 					throw std::runtime_error("För många argument");
-				argvals.push_back(convert(*i, *ati++, c, s));
+				argvals.push_back(convert(i, *ati++, c, s));
 			}
 		}
 		if (ati != argTypes.end())

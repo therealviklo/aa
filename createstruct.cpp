@@ -37,7 +37,7 @@ void CreateStruct::construct(llvm::Value* mem, Context& c, Scopes& s) const
 				throw std::runtime_error("Fel antal argument");
 			for (size_t i = 0; i < args.size(); i++)
 			{
-				argVals.push_back(convert(*args[i], f.args[i].type, c, s));
+				argVals.push_back(convert(args[i], f.args[i].type, c, s));
 			}
 			c.builder->CreateCall(f.getFunction(c), argVals);
 		}

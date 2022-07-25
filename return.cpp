@@ -20,7 +20,7 @@ void Return::writeStatement(Context& c, Scopes& s) const
 	{
 		if (val)
 		{
-			llvm::Value* const retval = convert(*val, c.retType, c, s);
+			llvm::Value* const retval = convert(val, c.retType, c, s);
 			c.tdscope.destroy(c, s);
 			c.builder->CreateRet(retval);
 		}

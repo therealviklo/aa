@@ -21,8 +21,8 @@ llvm::Value* Add::get(Context& c, Scopes& s) const
 			);
 	}
 	std::shared_ptr<Type> t = getTypeC(c, s);
-	llvm::Value* const l = convert(*left, t, c, s);
-	llvm::Value* const r = convert(*right, t, c, s);
+	llvm::Value* const l = convert(left, t, c, s);
+	llvm::Value* const r = convert(right, t, c, s);
 	if (t->isInt())
 		return c.builder->CreateAdd(l, r);
 	if (t->isFloat())

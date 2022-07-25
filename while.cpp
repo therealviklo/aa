@@ -7,7 +7,7 @@ void While::writeStatement(Context& c, Scopes& s) const
 	llvm::BasicBlock* const check = llvm::BasicBlock::Create(*c.c, "", f);
 	c.builder->CreateBr(check);
 	c.builder->SetInsertPoint(check);
-	llvm::Value* const boolVal = convert(*cond, s.tscope["bool"], c, s);
+	llvm::Value* const boolVal = convert(cond, s.tscope["bool"], c, s);
 	llvm::BasicBlock* const block = llvm::BasicBlock::Create(*c.c, "", f);
 	llvm::BasicBlock* const mergeBlock = llvm::BasicBlock::Create(*c.c);
 	c.tdscope.destroy(c, as);
