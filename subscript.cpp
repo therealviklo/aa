@@ -22,5 +22,8 @@ llvm::Value* Subscript::get(Context& c, Scopes& s) const
 
 std::shared_ptr<Type> Subscript::getType(Context& c, Scopes& s) const
 {
-	return makeRef(getValueType(expr->getTypeC(c, s))->getTypePointedTo());
+	if (expr->getTypeC(c, s)->isMut())
+		return makeRef(makeMut(getValueType(expr->getTypeC(c, s))->getTypePointedTo()));
+	else
+		return makeRef(getValueType(expr->getTypeC(c, s))->getTypePointedTo());
 }

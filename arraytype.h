@@ -17,10 +17,13 @@ public:
 
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
 	std::string getName() const override { return type->getName() + "[" + std::to_string(num) + "]"; }
+	bool isMut() const override { return type->isMut(); }
 	bool isArr() const override { return true; }
 	size_t getArrSize() const override { return num; }
 	bool isTriviallyDestructible(Scopes& s) const override;
 	std::shared_ptr<Type> getTypePointedTo() const override { return type; }
+	std::shared_ptr<Type> getUnderlyingType() const override;
+	std::shared_ptr<Type> getValueType() const override;
 
 	void destruct(llvm::Value* mem, Context& c, Scopes& s) const override;
 };
