@@ -2,5 +2,5 @@ i32 puts(u8* str);
 i32 printf(u8* format, ...);
 i32 scanf(u8* format, ...);
 
-void print(u8* str) printf(l"%s", str);
-void println(u8* str) printf(l"%s\n", str);
+void print(String str) printf(l"%s", [u8*]str);
+void println(String str) printf(l"%s\n", [u8*]str);
