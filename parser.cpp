@@ -162,7 +162,7 @@ void Parser::parseFile(Scopes& s)
 					lexer.error("En av typerna i en konverteringsfunktion måste vara en structtyp");
 				lexer.expect("(");
 				parseFunctionArgs(
-					TypeNamePair{type2, Name(getConvFunName(type, type2))},
+					TypeNamePair{type2, Name(getConvFunName(*type, *type2))},
 					type->isStruct() ? type : nullptr,
 					false,
 					s

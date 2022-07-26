@@ -25,6 +25,7 @@ public:
 	bool isSame(std::shared_ptr<Type> t) const override;
 	bool isStruct() const override { return true; }
 	bool isTriviallyDestructible(Scopes& s) const override;
+	bool isTriviallyCopyable(Scopes& s) const override;
 
 	llvm::Type* getType(llvm::LLVMContext& c) const override;
 

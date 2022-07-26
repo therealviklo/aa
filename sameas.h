@@ -28,6 +28,7 @@ public:
 	bool isFunctionPointer() const override { return t->isFunctionPointer(); }
 	bool isStruct() const override { return t->isStruct(); }
 	bool isTriviallyDestructible(Scopes& s) const override { return t->isTriviallyDestructible(s); }
+	bool isTriviallyCopyable(Scopes& s) const override { return t->isTriviallyCopyable(s); }
 	std::shared_ptr<Type> getTypePointedTo() const override { return t->getTypePointedTo(); }
 	std::shared_ptr<Type> getUnderlyingType() const override { return ::getUnderlyingType(t); }
 	std::shared_ptr<Type> getValueType() const override { return ::getValueType(t); }

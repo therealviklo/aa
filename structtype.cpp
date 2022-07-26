@@ -21,6 +21,21 @@ bool StructType::isTriviallyDestructible(Scopes& s) const
 	return true;
 }
 
+bool StructType::isTriviallyCopyable(Scopes& s) const
+{
+	const std::string convFunName = getConvFunName(*this, *this);
+	if (s.fscope.contains(convFunName))
+		return false;
+	if (s.fscope.contains("~" + name))
+		return false;
+	for (size_t i = 0; i < fields.size(); i++)
+	{
+		if (!fields[i]->isTriviallyCopyable(s))
+			return false;
+	}
+	return true;
+}
+
 llvm::Type* StructType::getType(llvm::LLVMContext& c) const
 {
 	std::vector<llvm::Type*> types;

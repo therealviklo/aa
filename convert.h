@@ -24,7 +24,9 @@ public:
 	llvm::Value* getAddress(Context& c, Scopes& s) const override;
 };
 
-inline std::string getConvFunName(std::shared_ptr<Type> from, std::shared_ptr<Type> to)
+inline std::string getConvFunName(const Type& from, const Type& to)
 {
-	return getValueType(from)->getName() + "$$" + to->getName();
+	const Type* fromValueType = from.getValueType().get();
+	if (!fromValueType) fromValueType = &from;
+	return fromValueType->getName() + "$$" + to.getName();
 }

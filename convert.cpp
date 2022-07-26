@@ -8,7 +8,7 @@ llvm::Value* callPtrReturnConvFun(llvm::Value* mem, std::shared_ptr<Expression> 
 		c.tdscope.add({newType, mem});
 	}
 	std::shared_ptr<Type> oldType = getValueType(expr->getTypeC(c, s));
-	const std::string convFunName = getConvFunName(oldType, newType);
+	const std::string convFunName = getConvFunName(*oldType, *newType);
 	if (s.fscope[convFunName].methodType)
 	{
 		c.builder->CreateCall(
@@ -63,7 +63,7 @@ llvm::Value* convert(std::shared_ptr<Expression> expr, std::shared_ptr<Type> new
 		return expr->getValue(c, s);
 	}
 	oldType = getValueType(oldType);
-	const std::string convFunName = getConvFunName(oldType, newType);
+	const std::string convFunName = getConvFunName(*oldType, *newType);
 	if (s.fscope.contains(convFunName))
 	{
 		if (newType->isPtrReturn())
@@ -231,7 +231,7 @@ std::shared_ptr<Type> Convert::getType(Context& /*c*/, Scopes& /*s*/) const
 llvm::Value* Convert::getAddress(Context& c, Scopes& s) const
 {
 	std::shared_ptr<Type> oldType = expr->getTypeC(c, s);
-	const std::string convFunName = getConvFunName(oldType, newType);
+	const std::string convFunName = getConvFunName(*oldType, *newType);
 	if (!s.fscope.contains(convFunName) || !newType->isPtrReturn())
 		return Expression::getAddress(c, s);
 	return callPtrReturnConvFun(nullptr, expr, newType, c, s);

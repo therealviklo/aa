@@ -42,6 +42,7 @@ public:
 	virtual bool isStruct() const { return false; }
 	bool isPtrReturn() const { return isArr() || isStruct(); }
 	virtual bool isTriviallyDestructible(Scopes& /*s*/) const { return true; }
+	virtual bool isTriviallyCopyable(Scopes& /*s*/) const { return true; }
 	virtual unsigned getRank() const { return 0u; }
 	virtual std::shared_ptr<Type> getTypePointedTo() const
 	{

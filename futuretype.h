@@ -22,6 +22,10 @@ public:
 	{
 		return get()->isTriviallyDestructible(s);
 	}
+	bool isTriviallyCopyable(Scopes& s) const override
+	{
+		return get()->isTriviallyCopyable(s);
+	}
 	llvm::Type* getType(llvm::LLVMContext& c) const override { return get()->getType(c); }
 	std::shared_ptr<Type> getRealType() const override { return ::getRealType(get()); }
 	std::shared_ptr<Type> getUnderlyingType() const override { return ::getUnderlyingType(get()); }

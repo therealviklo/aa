@@ -16,21 +16,53 @@ void copy(std::shared_ptr<Expression> from, llvm::Value* to, std::shared_ptr<Typ
 	}
 	else if (type->isStruct())
 	{
-		const std::string convFunName = getConvFunName(type, type);
-		if (s.fscope.contains(convFunName))
-		{
-			c.builder->CreateCall(
-				s.fscope[convFunName].getFunction(c),
-				{to, convfrom->getAddress(c, s)}
-			);
-		}
-		else if (!s.fscope.contains("~" + type->getName()))
+		if (type->isTriviallyCopyable(s))
 		{
 			c.builder->CreateStore(convfrom->getValue(c, s), to);
 		}
 		else
 		{
-			throw std::runtime_error("Kan inte kopiera typ");
+			const std::string convFunName = getConvFunName(*type, *type);
+			if (s.fscope.contains(convFunName))
+			{
+				c.builder->CreateCall(
+					s.fscope[convFunName].getFunction(c),
+					{to, convfrom->getAddress(c, s)}
+				);
+			}
+			else if (s.fscope.contains("~" + type->getName()))
+			{
+				throw std::runtime_error("Kan inte kopiera typ");
+			}
+			else
+			{
+				std::shared_ptr<Type> vt = getValueType(type);
+				if (const StructType* const st = dynamic_cast<const StructType*>(vt.get()))
+				{
+					for (size_t i = 0; i < st->fields.size(); i++)
+					{
+						copy(
+							std::make_shared<StructMemByNumber>(
+								convfrom->getAddress(c, s),
+								type,
+								i
+							),
+							std::make_shared<StructMemByNumber>(
+								to,
+								type,
+								i
+							)->getAddress(c, s),
+							st->fields[i],
+							c,
+							s
+						);
+					}
+				}
+				else
+				{
+					throw std::runtime_error("Förväntade structtyp");
+				}
+			}
 		}
 	}
 	else if (type->isArr())

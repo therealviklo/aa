@@ -14,6 +14,11 @@ bool ArrayType::isTriviallyDestructible(Scopes& s) const
 	return type->isTriviallyDestructible(s);
 }
 
+bool ArrayType::isTriviallyCopyable(Scopes& s) const
+{
+	return type->isTriviallyCopyable(s);
+}
+
 llvm::Type* ArrayType::getType(llvm::LLVMContext& c) const
 {
 	return llvm::ArrayType::get(type->getType(c), num);

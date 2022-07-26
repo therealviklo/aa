@@ -21,6 +21,7 @@ public:
 	bool isArr() const override { return true; }
 	size_t getArrSize() const override { return num; }
 	bool isTriviallyDestructible(Scopes& s) const override;
+	bool isTriviallyCopyable(Scopes& s) const override;
 	std::shared_ptr<Type> getTypePointedTo() const override { return type; }
 	std::shared_ptr<Type> getUnderlyingType() const override;
 	std::shared_ptr<Type> getValueType() const override;
