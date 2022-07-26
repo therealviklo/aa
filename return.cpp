@@ -2,7 +2,6 @@
 
 void Return::writeStatement(Context& c, Scopes& s) const
 {
-	s.dscope.destroyAll(c, s);
 	if (c.retType->isPtrReturn())
 	{
 		if (val)
@@ -14,6 +13,7 @@ void Return::writeStatement(Context& c, Scopes& s) const
 				val
 			).writeStatement(c, s);
 		c.tdscope.destroy(c, s);
+		s.dscope.destroyAll(c, s);
 		c.builder->CreateRetVoid();
 	}
 	else
@@ -22,10 +22,12 @@ void Return::writeStatement(Context& c, Scopes& s) const
 		{
 			llvm::Value* const retval = convert(val, c.retType, c, s);
 			c.tdscope.destroy(c, s);
+			s.dscope.destroyAll(c, s);
 			c.builder->CreateRet(retval);
 		}
 		else
 		{
+			s.dscope.destroyAll(c, s);
 			c.builder->CreateRetVoid();
 		}
 	}
